@@ -1,0 +1,8 @@
+opencv-python==4.8.1.78
+open-clip-torch==2.20.0
+faiss-cpu==1.7.4
+torch==2.1.0
+torchvision==0.16.0
+numpy==1.24.3
+Pillow==10.0.1
+transformers==4.35.0 
