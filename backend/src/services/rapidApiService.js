@@ -228,8 +228,9 @@ async function searchNewApiProducts(query, page = 1, limit = 10, country = 'us',
       }
     });
     logger.info('newapi_raw_response: ' + JSON.stringify(response.data));
-    // Fix: The products are nested in response.data.data.products
-    const rawProducts = response.data.data?.products || response.data.products || response.data.results || response.data.items || [];
+    // Fix: The products can be nested under response.data or response.data.data
+    const productContainer = response.data.data || response.data;
+    const rawProducts = productContainer?.products || productContainer?.results || productContainer?.items || [];
     logger.info(`newapi_raw_products_count: ${rawProducts.length}`);
     const transformedProducts = transformNewApiProducts(rawProducts);
     logger.info(`newapi_transformed_products_count: ${transformedProducts.length}`);

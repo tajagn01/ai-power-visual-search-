@@ -8,7 +8,14 @@
     "dev": "nodemon src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["ai", "ecommerce", "search", "opencv", "faiss", "rapidapi"],
+  "keywords": [
+    "ai",
+    "ecommerce",
+    "search",
+    "opencv",
+    "faiss",
+    "rapidapi"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {

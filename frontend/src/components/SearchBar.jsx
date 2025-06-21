@@ -1,60 +1,103 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react';
+import { FaSearch, FaCamera, FaTimes } from 'react-icons/fa';
 
-const SearchBar = ({ onSearch, theme }) => {
-  const [query, setQuery] = useState('')
+const SearchBar = ({ onSearch, onImageUpload, loading }) => {
+  const [query, setQuery] = useState('');
+  const [imagePreview, setImagePreview] = useState(null);
+  const imageInputRef = useRef(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (query.trim()) {
-      onSearch(query.trim())
+  const handleTextSubmit = (e) => {
+    e.preventDefault();
+    if (query.trim() && !imagePreview) {
+      onSearch(query.trim());
     }
-  }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      onImageUpload(file);
+    }
+  };
+
+  const triggerImageUpload = () => {
+    imageInputRef.current.click();
+  };
+  
+  const clearImage = () => {
+    setImagePreview(null);
+    if(imageInputRef.current) {
+        imageInputRef.current.value = '';
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="relative">
+    <form onSubmit={handleTextSubmit} className="max-w-2xl mx-auto">
+      <div className="relative flex items-center w-full bg-white rounded-full border-2 border-gray-200 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all text-lg">
         <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for products..."
-          className={`w-full px-4 py-3 pl-12 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            theme === 'dark'
-              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
-              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
-          }`}
+          type="file"
+          ref={imageInputRef}
+          onChange={handleImageChange}
+          className="hidden"
+          accept="image/*"
         />
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg
-            className={`h-6 w-6 ${
-              theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-            }`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        
+        {imagePreview ? (
+          <div className="flex items-center w-full pl-2 pr-2 py-2">
+            <div className="relative">
+                <img src={imagePreview} alt="upload preview" className="w-12 h-12 rounded-full object-cover" />
+                {loading && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+                    </div>
+                )}
+            </div>
+            <span className="ml-4 text-gray-500 text-base truncate">Image selected for search</span>
+            <button
+                type="button"
+                onClick={clearImage}
+                className="ml-auto p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-100 transition-colors"
+                aria-label="Clear image"
+            >
+                <FaTimes className="w-5 h-5" />
+            </button>
+          </div>
+        ) : (
+          <>
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search with text or upload an image..."
+              className="w-full pl-5 pr-28 py-3.5 bg-transparent border-none focus:outline-none text-base"
             />
-          </svg>
-        </div>
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <button
+                type="button"
+                onClick={triggerImageUpload}
+                className="p-2 rounded-full text-gray-500 hover:text-purple-600 hover:bg-purple-100 transition-colors"
+                aria-label="Upload an image"
+              >
+                <FaCamera className="w-5 h-5" />
+              </button>
+              <button
+                type="submit"
+                className="ml-2 p-2 rounded-full text-gray-500 hover:text-purple-600 hover:bg-purple-100 transition-colors"
+                aria-label="Search with text"
+              >
+                <FaSearch className="w-5 h-5" />
+              </button>
+            </div>
+          </>
+        )}
       </div>
-      
-      <button
-        type="submit"
-        className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-          theme === 'dark'
-            ? 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
-            : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
-        }`}
-      >
-        🔍 Search Products
-      </button>
     </form>
-  )
-}
+  );
+};
 
-export default SearchBar 
+export default SearchBar; 
