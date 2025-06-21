@@ -12,6 +12,17 @@ const rapidApiClient = axios.create({
   }
 });
 
+// New API client for real-time-product-search
+const newApiClient = axios.create({
+  baseURL: 'https://real-time-product-search.p.rapidapi.com',
+  timeout: 30000,
+  headers: {
+    'x-rapidapi-key': '9ca47aa256msh1bc983e36163a17p1bec18jsna1eca3706d0d',
+    'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com',
+    'Content-Type': 'application/json'
+  }
+});
+
 // Helper: Extract array of products from response
 function extractProductsFromResponse(data) {
   logger.info('rapidapi_raw_response: ' + JSON.stringify({ data }));
@@ -30,16 +41,34 @@ function extractProductsFromResponse(data) {
   return [];
 }
 
+// Helper: Sanitize and parse price strings from various formats
+function parsePrice(priceInput) {
+  if (!priceInput) {
+    return 'Price not available';
+  }
+
+  let priceString = priceInput.toString();
+
+  // Remove anything after a slash (e.g., "/mo")
+  priceString = priceString.split('/')[0];
+
+  // Remove all non-numeric characters except the decimal point
+  const sanitizedPrice = priceString.replace(/[^0-9.]/g, '');
+
+  if (sanitizedPrice === '') {
+    return 'Price not available';
+  }
+
+  const parsedPrice = parseFloat(sanitizedPrice);
+
+  return !isNaN(parsedPrice) ? parsedPrice.toFixed(2) : 'Price not available';
+}
+
 // Helper: Transform RapidAPI product objects to our format
 function transformProducts(rapidApiProducts) {
   return rapidApiProducts.map((product, index) => {
-    const price =
-      product.price_str ||
-      product.price?.current_price ||
-      product.price?.value ||
-      product.price?.raw ||
-      product.price ||
-      'Price not available';
+    // Use the new robust price parser on the correct field
+    const price = parsePrice(product.product_price);
 
     return {
       id: product.asin || `mock-${Date.now()}-${index}`,
@@ -50,7 +79,7 @@ function transformProducts(rapidApiProducts) {
       rating: product.rating || (Math.random() * 2 + 3).toFixed(1),
       reviews: product.reviews || Math.floor(Math.random() * 1000) + 50,
       description: product.description || (product.features && product.features.join(' ')) || '',
-      brand: product.brand || product.product_brand || 'Unknown Brand',
+      brand: 'Amazon', // Explicitly set brand for this API
       availability: product.availability || 'In Stock'
     };
   });
@@ -161,8 +190,58 @@ async function searchProductsByQuery(query, country = 'US') {
   return searchProducts(query, 1, 20);
 }
 
+// Helper: Transform new API product objects to our format
+function transformNewApiProducts(apiProducts) {
+  return apiProducts.map((product, index) => {
+    // Use the new robust price parser
+    const price = parsePrice(product.price);
+
+    return {
+      id: product.product_id || `newapi-${Date.now()}-${index}`,
+      title: product.product_title || product.title || product.name || 'Product Title Not Available',
+      price,
+      image: product.product_photo || product.image || product.image_url || (product.images && product.images[0]) || `https://picsum.photos/300/300?random=newapi${index}`,
+      amazonUrl: product.product_offer_page_url || product.url || product.product_url || '',
+      rating: product.product_rating || product.rating || (Math.random() * 2 + 3).toFixed(1),
+      reviews: product.product_num_reviews || product.reviews || Math.floor(Math.random() * 1000) + 50,
+      description: product.description || '',
+      brand: product.store_name || product.brand || 'Store',
+      availability: product.availability || 'In Stock'
+    };
+  });
+}
+
+// Search products using the new API (search-light-v2, by query)
+async function searchNewApiProducts(query, page = 1, limit = 10, country = 'us', language = 'en') {
+  try {
+    const response = await newApiClient.get('/search-light-v2', {
+      params: {
+        q: query,
+        country,
+        language,
+        page,
+        limit,
+        sort_by: 'BEST_MATCH',
+        product_condition: 'ANY',
+        return_filters: 'false'
+      }
+    });
+    logger.info('newapi_raw_response: ' + JSON.stringify(response.data));
+    // Fix: The products are nested in response.data.data.products
+    const rawProducts = response.data.data?.products || response.data.products || response.data.results || response.data.items || [];
+    logger.info(`newapi_raw_products_count: ${rawProducts.length}`);
+    const transformedProducts = transformNewApiProducts(rawProducts);
+    logger.info(`newapi_transformed_products_count: ${transformedProducts.length}`);
+    return transformedProducts;
+  } catch (error) {
+    logger.error('newapi_search_error: ' + JSON.stringify({ query, error: error.message, status: error.response?.status, data: error.response?.data }));
+    return [];
+  }
+}
+
 module.exports = {
   searchProducts,
   searchByKeywords,
-  searchProductsByQuery
+  searchProductsByQuery,
+  searchNewApiProducts
 };

@@ -20,24 +20,27 @@ const searchByText = async (req, res) => {
       })
     }
 
-    // Search products using RapidAPI
-    const products = await rapidApiService.searchProducts(query.trim(), parseInt(page), parseInt(limit))
-
-    logger.info('text_search_success: ' + JSON.stringify({ query, resultsCount: products.length }))
+    // Fetch Amazon products
+    const amazonProducts = await rapidApiService.searchProducts(query.trim(), parseInt(page), parseInt(limit))
+    // Fetch new API products using the search query
+    const newApiProducts = await rapidApiService.searchNewApiProducts(query.trim(), parseInt(page), parseInt(limit))
+    // Clean, readable log for search success
+    logger.info(`[SEARCH] query="${query}" | Amazon=${amazonProducts.length} | NewAPI=${newApiProducts.length}`);
 
     res.json({
       success: true,
       data: {
-        products,
+        amazon: amazonProducts,
+        newApi: newApiProducts,
         query: query.trim(),
         page: parseInt(page),
         limit: parseInt(limit),
-        total: products.length
+        total: amazonProducts.length + newApiProducts.length
       }
     })
 
   } catch (error) {
-    logger.error('text_search_error: ' + JSON.stringify({ query, error: error.message, stack: error.stack }))
+    logger.error(`[ERROR] text_search: query="${query}" | ${error.message}`);
 
     throw error
   }
@@ -45,7 +48,7 @@ const searchByText = async (req, res) => {
 
 // Image search controller
 const searchByImage = async (req, res) => {
-  logger.info('image_search_start: ' + JSON.stringify({ ip: req.ip, file: req.file ? req.file.originalname : 'no file' }))
+  logger.info(`[IMAGE SEARCH] start | ip=${req.ip} | file=${req.file ? req.file.originalname : 'no file'}`);
 
   try {
     // Check if file was uploaded
@@ -69,7 +72,7 @@ const searchByImage = async (req, res) => {
     let visionError = null
     try {
       detectedObjects = await clarifaiService.detectObjects(imageBuffer)
-      logger.info('clarifai_objects_detected: ' + JSON.stringify({ objects: detectedObjects }))
+      logger.info(`[IMAGE SEARCH] clarifai objects: ${detectedObjects.map(o => o.name).join(', ')}`);
     } catch (err) {
       visionError = err.message
       logger.warn('clarifai_api_error: ' + visionError)
@@ -84,10 +87,18 @@ const searchByImage = async (req, res) => {
       }
     }
 
-    // Use the keywords as the query for product search
-    const products = await rapidApiService.searchByKeywords(keywords)
+    // Only fetch Amazon products by keywords
+    const amazonProducts = await rapidApiService.searchByKeywords(keywords)
+    logger.info(`[IMAGE SEARCH] amazonCount=${amazonProducts.length} | keywords=${keywords.join(', ')}`);
 
-    logger.info('image_search_success: ' + JSON.stringify({ resultsCount: products.length, keywords }))
+    // Fetch new API products by keywords (use the best keyword)
+    let newApiProducts = [];
+    try {
+      newApiProducts = await rapidApiService.searchNewApiProducts(keywords[0]);
+      logger.info(`[IMAGE SEARCH] newApiCount=${newApiProducts.length} | keyword=${keywords[0]}`);
+    } catch (err) {
+      logger.warn(`[IMAGE SEARCH] newApi error: ${err.message}`);
+    }
 
     // Clean up uploaded file
     try {
@@ -100,16 +111,17 @@ const searchByImage = async (req, res) => {
     res.json({
       success: true,
       data: {
-        products,
+        amazon: amazonProducts,
+        newApi: newApiProducts,
         keywords,
         visionError,
         originalImage: originalName,
-        total: products.length
+        total: amazonProducts.length + newApiProducts.length
       }
     })
 
   } catch (error) {
-    logger.error('image_search_error: ' + JSON.stringify({ error: error.message, stack: error.stack, file: req.file ? req.file.filename : 'no file' }))
+    logger.error(`[ERROR] image_search: ${error.message}`);
 
     // Clean up uploaded file on error
     if (req.file && req.file.path) {

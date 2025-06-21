@@ -16,25 +16,25 @@ export const searchByText = async (query, page = 1) => {
       params: {
         q: query,
         page: page,
-        limit: 20, // Number of products per page
+        limit: 20,
       },
     })
-    
-    // Return products from backend response
     if (response.data.success) {
-      return response.data.data.products || []
+      return {
+        amazon: response.data.data.amazon || [],
+        newApi: response.data.data.newApi || []
+      }
     }
-    
     throw new Error(response.data.error || 'Search failed')
   } catch (error) {
     console.error('Text search error:', error)
-    
-    // Return mock data for demo purposes if backend is not available
     if (error.code === 'ERR_NETWORK' || error.response?.status === 404) {
       console.warn('Backend not available, using mock data')
-      return generateMockProducts(query, page)
+      return {
+        amazon: generateMockProducts(query, page),
+        newApi: generateMockProducts(query, page)
+      }
     }
-    
     throw new Error(error.response?.data?.error || error.message || 'Failed to search products')
   }
 }
@@ -44,28 +44,27 @@ export const searchByImage = async (file) => {
   try {
     const formData = new FormData()
     formData.append('image', file)
-    
     const response = await api.post('/search/image', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
-    
-    // Return products from backend response
     if (response.data.success) {
-      return response.data.data.products || []
+      return {
+        amazon: response.data.data.amazon || [],
+        newApi: response.data.data.newApi || []
+      }
     }
-    
     throw new Error(response.data.error || 'Image search failed')
   } catch (error) {
     console.error('Image search error:', error)
-    
-    // Return mock data for demo purposes if backend is not available
     if (error.code === 'ERR_NETWORK' || error.response?.status === 404) {
       console.warn('Backend not available, using mock data')
-      return generateMockProducts('image search', 1)
+      return {
+        amazon: generateMockProducts('image search', 1),
+        newApi: []
+      }
     }
-    
     throw new Error(error.response?.data?.error || error.message || 'Image upload failed - try again')
   }
 }

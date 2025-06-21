@@ -1,13 +1,21 @@
 import React from 'react'
 
 const ProductCard = ({ product }) => {
-  const { title, price, image, amazonUrl, rating, reviews } = product
+  const { title, price, image, amazonUrl, rating, reviews, brand } = product
 
-  // Use --> for fallback, and show price only if available and not a fallback string
-  const displayPrice =
-    price && price !== 'Price not available'
-      ? `$${price}`
-      : '--> Price not available'
+  // Price now comes pre-formatted from the backend
+  const displayPrice = price && price !== 'Price not available' ? `$${price}` : 'Price not available'
+
+  // Fix image URL by ensuring it has a protocol
+  const imageUrl = image && image.startsWith('//') ? `https:${image}` : image
+
+  // Determine the store name for the button
+  const getStoreName = () => {
+    if (amazonUrl && amazonUrl.includes('amazon.com')) {
+      return 'Amazon'
+    }
+    return brand || 'Store'
+  }
 
   const renderStars = (rating) => {
     const stars = []
@@ -56,7 +64,7 @@ const ProductCard = ({ product }) => {
       {/* Product Image */}
       <div className="relative overflow-hidden h-48 flex items-center justify-center">
         <img
-          src={image}
+          src={imageUrl}
           alt={title}
           className="w-full h-48 object-contain group-hover:scale-105 transition-transform duration-300"
           loading="lazy"
@@ -93,12 +101,12 @@ const ProductCard = ({ product }) => {
           href={amazonUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-yellow-900 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center group/button mt-auto"
+          className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-yellow-900 font-medium py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center group/button mt-auto focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
         >
           <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M15.5 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM15.5 6.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V7.5a.75.75 0 01.75-.75zM15.5 11.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zM15.5 15.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zM6.5 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM6.5 6.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V7.5a.75.75 0 01.75-.75zM6.5 11.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zM6.5 15.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75z"/>
+            <path d="M15.5 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM15.5 6.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V7.5a.75.75 0 01.75-.75zM15.5 11.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zM15.5 15.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zM6.5 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM6.5 6.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V7.5a.75.75 0 01.75-.75zM6.5 11.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75zM6.5 15.75a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25a.75.75 0 01.75-.75z" />
           </svg>
-          View on Amazon
+          View on {getStoreName()}
         </a>
       </div>
     </div>

@@ -9,7 +9,7 @@ function App() {
   const [searchMode, setSearchMode] = useState('text') // 'text' or 'image'
   const [searchQuery, setSearchQuery] = useState('')
   const [imagePreview, setImagePreview] = useState(null)
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState({ amazon: [], newApi: [] })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [page, setPage] = useState(1)
@@ -28,7 +28,7 @@ function App() {
       setProducts(results)
     } catch (err) {
       setError(err.message || 'Failed to search products')
-      setProducts([])
+      setProducts({ amazon: [], newApi: [] })
     } finally {
       setLoading(false)
     }
@@ -45,7 +45,7 @@ function App() {
       setProducts(results)
     } catch (err) {
       setError(err.message || 'Image upload failed - try again')
-      setProducts([])
+      setProducts({ amazon: [], newApi: [] })
     } finally {
       setLoading(false)
     }
@@ -59,7 +59,10 @@ function App() {
     
     try {
       const newResults = await searchByText(searchQuery, nextPage)
-      setProducts(prev => [...prev, ...newResults])
+      setProducts(prev => ({
+        amazon: [...prev.amazon, ...newResults.amazon],
+        newApi: [...prev.newApi, ...newResults.newApi]
+      }))
       setPage(nextPage)
     } catch (err) {
       setError(err.message || 'Failed to load more products')
@@ -151,16 +154,20 @@ function App() {
         )}
 
         {/* Results */}
-        {products.length > 0 && (
+        {(products.amazon.length > 0 || products.newApi.length > 0) && (
           <div className="max-w-7xl mx-auto">
-            <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-secondary-800">
-                Search Results ({products.length} products)
-              </h2>
-            </div>
-            <ProductGrid products={products} />
-            
-            {/* Load More Button */}
+            {products.amazon.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-2xl font-semibold text-secondary-800 mb-4">Amazon Products ({products.amazon.length})</h2>
+                <ProductGrid products={products.amazon} />
+              </div>
+            )}
+            {products.newApi.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-2xl font-semibold text-secondary-800 mb-4">Other Sites ({products.newApi.length})</h2>
+                <ProductGrid products={products.newApi} />
+              </div>
+            )}
             {searchMode === 'text' && searchQuery && (
               <div className="text-center mt-8">
                 <button
@@ -176,7 +183,7 @@ function App() {
         )}
 
         {/* No Results */}
-        {!loading && !error && products.length === 0 && (searchQuery || imagePreview) && (
+        {!loading && !error && products.amazon.length === 0 && products.newApi.length === 0 && (searchQuery || imagePreview) && (
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-white rounded-lg p-8 shadow-md">
               <svg className="mx-auto h-12 w-12 text-secondary-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
