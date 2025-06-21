@@ -20,10 +20,24 @@ const searchByText = async (req, res) => {
       })
     }
 
+    const country = 'IN'
+
     // Fetch Amazon products
-    const amazonProducts = await rapidApiService.searchProducts(query.trim(), parseInt(page), parseInt(limit))
+    const amazonProducts = await rapidApiService.searchProducts(query.trim(), parseInt(page), parseInt(limit), country)
+      .catch(error => {
+        logger.error(`Error fetching Amazon products: ${error.message}`);
+        return []; // Return empty array on error
+      });
+    
     // Fetch new API products using the search query
-    const newApiProducts = await rapidApiService.searchNewApiProducts(query.trim(), parseInt(page), parseInt(limit))
+    const newApiProducts = await rapidApiService.searchNewApiProducts(query.trim(), parseInt(page), parseInt(limit), country.toLowerCase())
+     .catch(error => {
+        logger.error(`Error fetching New API products: ${error.message}`);
+        return []; // Return empty array on error
+      });
+
+    let combinedResults = [...amazonProducts, ...newApiProducts];
+
     // Clean, readable log for search success
     logger.info(`[SEARCH] query="${query}" | Amazon=${amazonProducts.length} | NewAPI=${newApiProducts.length}`);
 
@@ -87,18 +101,28 @@ const searchByImage = async (req, res) => {
       }
     }
 
+    const country = 'IN'
+
     // Only fetch Amazon products by keywords
-    const amazonProducts = await rapidApiService.searchByKeywords(keywords)
+    const amazonProducts = await rapidApiService.searchByKeywords(keywords, null, 20, country)
+      .catch(error => {
+        logger.error(`Error fetching Amazon products by keywords: ${error.message}`);
+        return []; // Return empty on error
+      });
     logger.info(`[IMAGE SEARCH] amazonCount=${amazonProducts.length} | keywords=${keywords.join(', ')}`);
 
     // Fetch new API products by keywords (use the best keyword)
     let newApiProducts = [];
-    try {
-      newApiProducts = await rapidApiService.searchNewApiProducts(keywords[0]);
-      logger.info(`[IMAGE SEARCH] newApiCount=${newApiProducts.length} | keyword=${keywords[0]}`);
-    } catch (err) {
-      logger.warn(`[IMAGE SEARCH] newApi error: ${err.message}`);
+    if(keywords && keywords.length > 0) {
+      try {
+        newApiProducts = await rapidApiService.searchNewApiProducts(keywords[0], 1, 10, country.toLowerCase());
+      } catch (error) {
+        logger.error(`Error fetching New API products by keywords: ${error.message}`);
+        newApiProducts = []; // Return empty on error
+      }
     }
+
+    let combinedResults = [...amazonProducts, ...newApiProducts];
 
     // Clean up uploaded file
     try {

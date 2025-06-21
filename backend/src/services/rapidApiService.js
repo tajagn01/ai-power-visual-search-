@@ -17,7 +17,7 @@ const newApiClient = axios.create({
   baseURL: 'https://real-time-product-search.p.rapidapi.com',
   timeout: 30000,
   headers: {
-    'x-rapidapi-key': '9ca47aa256msh1bc983e36163a17p1bec18jsna1eca3706d0d',
+    'x-rapidapi-key': '4bbc952f27mshe643a7836b35113p181449jsn04b7f9ed1e5f',
     'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com',
     'Content-Type': 'application/json'
   }
@@ -74,10 +74,10 @@ function transformProducts(rapidApiProducts) {
       id: product.asin || `mock-${Date.now()}-${index}`,
       title: product.title || product.product_title || 'Product Title Not Available',
       price,
-      image: product.image || product.thumbnail || product.product_photo || `https://picsum.photos/300/300?random=${index}`,
+      thumbnail: product.image || product.thumbnail || product.product_photo || `https://picsum.photos/300/300?random=${index}`,
       amazonUrl: product.url || product.link || product.product_url || `https://amazon.com/dp/${product.asin || 'mock'}`,
-      rating: product.rating || (Math.random() * 2 + 3).toFixed(1),
-      reviews: product.reviews || Math.floor(Math.random() * 1000) + 50,
+      rating: parseFloat(product.product_star_rating || product.rating) || (Math.random() * 2 + 3),
+      reviews: product.reviews || product.product_num_ratings || Math.floor(Math.random() * 1000) + 50,
       description: product.description || (product.features && product.features.join(' ')) || '',
       brand: 'Amazon', // Explicitly set brand for this API
       availability: product.availability || 'In Stock'
@@ -119,11 +119,11 @@ function generateMockProducts(query, page = 1, limit = 20) {
 }
 
 // Search products by text query
-async function searchProducts(query, page = 1, limit = 20) {
-  logger.info('rapidapi_search_products: ' + JSON.stringify({ query, page, limit }));
+async function searchProducts(query, page = 1, limit = 20, country = 'US') {
+  logger.info('rapidapi_search_products: ' + JSON.stringify({ query, page, limit, country }));
   try {
     const response = await rapidApiClient.get('/search', {
-      params: { query, page, country: 'US', category: 'aps' }
+      params: { query, page, country, category: 'aps' }
     });
 
     const rawProducts = extractProductsFromResponse(response.data);
@@ -148,9 +148,10 @@ async function searchProducts(query, page = 1, limit = 20) {
  * @param {string[]} keywords - Array of detected keywords.
  * @param {number[]} [confidences] - Optional array of confidences for each keyword.
  * @param {number} [limit=20] - Number of products to return.
+ * @param {string} [country='US'] - The country to search in.
  */
-async function searchByKeywords(keywords, confidences, limit = 20) {
-  logger.info('rapidapi_search_by_keywords: ' + JSON.stringify({ keywords, confidences, limit }));
+async function searchByKeywords(keywords, confidences, limit = 20, country = 'US') {
+  logger.info('rapidapi_search_by_keywords: ' + JSON.stringify({ keywords, confidences, limit, country }));
   let searchQuery;
   if (Array.isArray(keywords) && keywords.length > 0) {
     if (Array.isArray(confidences) && confidences.length === keywords.length) {
@@ -167,7 +168,7 @@ async function searchByKeywords(keywords, confidences, limit = 20) {
 
   try {
     const response = await rapidApiClient.get('/search', {
-      params: { query: searchQuery, page: 1, country: 'US', category: 'aps' }
+      params: { query: searchQuery, page: 1, country, category: 'aps' }
     });
 
     const rawProducts = extractProductsFromResponse(response.data);
@@ -187,7 +188,7 @@ async function searchByKeywords(keywords, confidences, limit = 20) {
 
 // Simple alias for searchProducts
 async function searchProductsByQuery(query, country = 'US') {
-  return searchProducts(query, 1, 20);
+  return searchProducts(query, 1, 20, country);
 }
 
 // Helper: Transform new API product objects to our format
@@ -200,9 +201,9 @@ function transformNewApiProducts(apiProducts) {
       id: product.product_id || `newapi-${Date.now()}-${index}`,
       title: product.product_title || product.title || product.name || 'Product Title Not Available',
       price,
-      image: product.product_photo || product.image || product.image_url || (product.images && product.images[0]) || `https://picsum.photos/300/300?random=newapi${index}`,
+      thumbnail: product.product_photo || product.image || product.image_url || (product.images && product.images[0]) || `https://picsum.photos/300/300?random=newapi${index}`,
       amazonUrl: product.product_offer_page_url || product.url || product.product_url || '',
-      rating: product.product_rating || product.rating || (Math.random() * 2 + 3).toFixed(1),
+      rating: parseFloat(product.product_rating || product.rating) || (Math.random() * 2 + 3),
       reviews: product.product_num_reviews || product.reviews || Math.floor(Math.random() * 1000) + 50,
       description: product.description || '',
       brand: product.store_name || product.brand || 'Store',

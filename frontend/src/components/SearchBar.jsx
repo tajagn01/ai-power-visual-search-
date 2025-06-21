@@ -1,70 +1,59 @@
 import React, { useState } from 'react'
 
-const SearchBar = ({ onSearch, disabled = false }) => {
+const SearchBar = ({ onSearch, theme }) => {
   const [query, setQuery] = useState('')
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    if (query.trim() && !disabled) {
+    if (query.trim()) {
       onSearch(query.trim())
     }
   }
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSubmit(e)
-    }
-  }
-
   return (
-    <div className="w-full">
-      <form onSubmit={handleSubmit} className="relative">
-        <div className="relative">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Search for products..."
-            disabled={disabled}
-            className="w-full px-4 py-4 pl-12 pr-20 text-lg border-2 border-secondary-200 rounded-xl focus:border-primary-500 focus:outline-none transition-colors duration-200 disabled:bg-secondary-100 disabled:cursor-not-allowed shadow-sm"
-          />
-          
-          {/* Search Icon */}
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-            <svg 
-              className="h-6 w-6 text-secondary-400" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-              />
-            </svg>
-          </div>
-          
-          {/* Search Button */}
-          <button
-            type="submit"
-            disabled={disabled || !query.trim()}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary-500 hover:bg-primary-600 disabled:bg-secondary-300 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="relative">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search for products..."
+          className={`w-full px-4 py-3 pl-12 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            theme === 'dark'
+              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
+              : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+          }`}
+        />
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg
+            className={`h-6 w-6 ${
+              theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+            }`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            Search
-          </button>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
         </div>
-      </form>
-      
-      {/* Search Tips */}
-      <div className="mt-4 text-center">
-        <p className="text-sm text-secondary-500">
-          Try searching for: headphones, phone, laptop, camera, or any product you're looking for
-        </p>
       </div>
-    </div>
+      
+      <button
+        type="submit"
+        className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+          theme === 'dark'
+            ? 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
+            : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
+        }`}
+      >
+        🔍 Search Products
+      </button>
+    </form>
   )
 }
 

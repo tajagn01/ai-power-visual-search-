@@ -1,206 +1,252 @@
-import React, { useState } from 'react'
-import SearchBar from './components/SearchBar'
-import ImageUploader from './components/ImageUploader'
-import ProductGrid from './components/ProductGrid'
-import Loader from './components/Loader'
-import { searchByText, searchByImage } from './services/api'
+import React, { useState, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ImageUploader from './components/ImageUploader';
+import SearchBar from './components/SearchBar';
+import ProductGrid from './components/ProductGrid';
+import Loader from './components/Loader';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 
-function App() {
-  const [searchMode, setSearchMode] = useState('text') // 'text' or 'image'
-  const [searchQuery, setSearchQuery] = useState('')
-  const [imagePreview, setImagePreview] = useState(null)
-  const [products, setProducts] = useState({ amazon: [], newApi: [] })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const [page, setPage] = useState(1)
-
-  const handleTextSearch = async (query) => {
-    if (!query.trim()) return
-    
-    setLoading(true)
-    setError(null)
-    setSearchQuery(query)
-    setImagePreview(null) // Clear image preview when doing text search
-    setPage(1)
-    
-    try {
-      const results = await searchByText(query, 1)
-      setProducts(results)
-    } catch (err) {
-      setError(err.message || 'Failed to search products')
-      setProducts({ amazon: [], newApi: [] })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleImageSearch = async (file) => {
-    setLoading(true)
-    setError(null)
-    setSearchQuery('')
-    setPage(1)
-    
-    try {
-      const results = await searchByImage(file)
-      setProducts(results)
-    } catch (err) {
-      setError(err.message || 'Image upload failed - try again')
-      setProducts({ amazon: [], newApi: [] })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleLoadMore = async () => {
-    if (loading || !searchQuery) return
-    
-    setLoading(true)
-    const nextPage = page + 1
-    
-    try {
-      const newResults = await searchByText(searchQuery, nextPage)
-      setProducts(prev => ({
-        amazon: [...prev.amazon, ...newResults.amazon],
-        newApi: [...prev.newApi, ...newResults.newApi]
-      }))
-      setPage(nextPage)
-    } catch (err) {
-      setError(err.message || 'Failed to load more products')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleImagePreview = (preview) => {
-    setImagePreview(preview)
-  }
+const Home = ({ theme, handleSearch, handleImageSearch, loading, products }) => {
+  const amazonProducts = products?.amazon || [];
+  const newApiProducts = products?.newApi || [];
+  const totalProducts = amazonProducts.length + newApiProducts.length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary-800 mb-2">
-            Product Search
-          </h1>
-          <p className="text-secondary-600">
-            Search for products by text or upload an image
+    <>
+      {/* Hero Section */}
+      <div className="text-center mb-12">
+        <h1 className={`text-5xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+          AI Product Finder
+        </h1>
+        <p className={`text-xl mb-8 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+          Discover products from Amazon and other retailers using AI-powered search
+        </p>
+      </div>
+
+      {/* Search Section */}
+      <div className="max-w-4xl mx-auto mb-12">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Text Search */}
+          <div className={`p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+            <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+              🔍 Text Search
+            </h2>
+            <SearchBar onSearch={handleSearch} theme={theme} />
+          </div>
+
+          {/* Image Search */}
+          <div className={`p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+            <h2 className={`text-2xl font-semibold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+              📸 Image Search
+            </h2>
+            <ImageUploader onImageUpload={handleImageSearch} theme={theme} />
+          </div>
+        </div>
+      </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="text-center py-12">
+          <Loader theme={theme} />
+          <p className={`mt-4 text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+            Searching for products...
           </p>
         </div>
+      )}
 
-        {/* Search Mode Toggle */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white rounded-lg p-1 shadow-md">
-            <button
-              onClick={() => setSearchMode('text')}
-              className={`px-6 py-2 rounded-md font-medium transition-all duration-200 ${
-                searchMode === 'text'
-                  ? 'bg-primary-500 text-white shadow-md'
-                  : 'text-secondary-600 hover:text-primary-600'
-              }`}
-            >
-              Text Search
-            </button>
-            <button
-              onClick={() => setSearchMode('image')}
-              className={`px-6 py-2 rounded-md font-medium transition-all duration-200 ${
-                searchMode === 'image'
-                  ? 'bg-primary-500 text-white shadow-md'
-                  : 'text-secondary-600 hover:text-primary-600'
-              }`}
-            >
-              Image Search
-            </button>
+      {/* Results Section */}
+      {!loading && totalProducts > 0 && (
+        <div className="max-w-7xl mx-auto">
+          <div className="space-y-12">
+            {/* Amazon Products */}
+            {amazonProducts.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                    🛒 Amazon Products ({amazonProducts.length})
+                  </h2>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    theme === 'dark' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    Prime Ready
+                  </div>
+                </div>
+                <ProductGrid products={amazonProducts} theme={theme} />
+              </div>
+            )}
+
+            {/* Other Sites Products */}
+            {newApiProducts.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+                    🌐 Other Sites ({newApiProducts.length})
+                  </h2>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    theme === 'dark' ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-800'
+                  }`}>
+                    Multi-Store
+                  </div>
+                </div>
+                <ProductGrid products={newApiProducts} theme={theme} />
+              </div>
+            )}
           </div>
         </div>
+      )}
 
-        {/* Search Interface */}
-        <div className="max-w-4xl mx-auto mb-8">
-          {searchMode === 'text' ? (
-            <SearchBar onSearch={handleTextSearch} disabled={loading} />
-          ) : (
-            <ImageUploader 
-              onImageUpload={handleImageSearch}
-              onImagePreview={handleImagePreview}
-              imagePreview={imagePreview}
-              disabled={loading}
-            />
-          )}
+      {/* Empty State */}
+      {!loading && totalProducts === 0 && (
+        <div className="text-center py-16">
+          <div className={`text-6xl mb-4 ${theme === 'dark' ? 'text-gray-600' : 'text-gray-300'}`}>
+            🔍
+          </div>
+          <h3 className={`text-2xl font-semibold mb-2 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>
+            Ready to discover products?
+          </h3>
+          <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            Use the search bar above or upload an image to get started
+          </p>
         </div>
+      )}
+    </>
+  );
+};
 
-        {/* Loading Overlay */}
-        {loading && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <Loader />
-          </div>
-        )}
+const Features = ({ theme }) => (
+  <div className="text-center py-16">
+    <h1 className={`text-5xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>Features</h1>
+    <p className={`text-xl ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+      Our product finder is packed with amazing features.
+    </p>
+  </div>
+);
 
-        {/* Error Message */}
-        {error && (
-          <div className="max-w-4xl mx-auto mb-8">
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+const About = ({ theme }) => (
+  <div className="text-center py-16">
+    <h1 className={`text-5xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-gray-800'}`}>About Us</h1>
+    <p className={`text-xl ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+      We are a team dedicated to helping you find the best products online.
+    </p>
+  </div>
+);
 
-        {/* Results */}
-        {(products.amazon.length > 0 || products.newApi.length > 0) && (
-          <div className="max-w-7xl mx-auto">
-            {products.amazon.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-2xl font-semibold text-secondary-800 mb-4">Amazon Products ({products.amazon.length})</h2>
-                <ProductGrid products={products.amazon} />
-              </div>
-            )}
-            {products.newApi.length > 0 && (
-              <div className="mb-10">
-                <h2 className="text-2xl font-semibold text-secondary-800 mb-4">Other Sites ({products.newApi.length})</h2>
-                <ProductGrid products={products.newApi} />
-              </div>
-            )}
-            {searchMode === 'text' && searchQuery && (
-              <div className="text-center mt-8">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                  className="bg-primary-500 hover:bg-primary-600 disabled:bg-primary-300 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-                >
-                  {loading ? 'Loading...' : 'Load More Products'}
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+function App() {
+  const [products, setProducts] = useState({ amazon: [], newApi: [] });
+  const [loading, setLoading] = useState(false);
+  const [theme, setTheme] = useState('light');
 
-        {/* No Results */}
-        {!loading && !error && products.amazon.length === 0 && products.newApi.length === 0 && (searchQuery || imagePreview) && (
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="bg-white rounded-lg p-8 shadow-md">
-              <svg className="mx-auto h-12 w-12 text-secondary-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <h3 className="text-lg font-medium text-secondary-900 mb-2">
-                No products found
-              </h3>
-              <p className="text-secondary-600">
-                Try adjusting your search terms or upload a different image.
-              </p>
-            </div>
-          </div>
-        )}
+  const handleSearch = useCallback(async (searchTerm) => {
+    setLoading(true);
+    console.log('🔍 Starting text search for:', searchTerm);
+    try {
+      const response = await fetch(`http://localhost:5000/api/search/text?q=${encodeURIComponent(searchTerm)}&page=1&limit=20`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+
+      const responseData = await response.json();
+      console.log('📦 Received response from backend:', responseData);
+      
+      // Extract products from the nested data structure
+      const data = responseData.data || responseData;
+      console.log('📦 Extracted data:', data);
+      console.log('📊 Amazon products count:', data?.amazon?.length || 0);
+      console.log('📊 New API products count:', data?.newApi?.length || 0);
+      
+      // Limit to 10 products from Amazon and 20 from other sites
+      const limitedData = {
+        amazon: (data?.amazon || []).slice(0, 10),
+        newApi: (data?.newApi || []).slice(0, 20)
+      };
+      
+      setProducts(limitedData);
+    } catch (error) {
+      console.error('❌ Search error:', error);
+      setProducts({ amazon: [], newApi: [] });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleImageSearch = useCallback(async (imageFile) => {
+    setLoading(true);
+    console.log('📸 Starting image search for:', imageFile.name);
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      const response = await fetch('http://localhost:5000/api/search/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Image search failed');
+      }
+
+      const responseData = await response.json();
+      console.log('📦 Received response from backend:', responseData);
+      
+      // Extract products from the nested data structure
+      const data = responseData.data || responseData;
+      console.log('📦 Extracted data:', data);
+      console.log('📊 Amazon products count:', data?.amazon?.length || 0);
+      console.log('📊 New API products count:', data?.newApi?.length || 0);
+      
+      // Limit to 10 products from Amazon and 20 from other sites
+      const limitedData = {
+        amazon: (data?.amazon || []).slice(0, 10),
+        newApi: (data?.newApi || []).slice(0, 20)
+      };
+      
+      setProducts(limitedData);
+    } catch (error) {
+      console.error('❌ Image search error:', error);
+      setProducts({ amazon: [], newApi: [] });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const totalProducts = products?.amazon.length + products?.newApi.length || 0;
+
+  return (
+    <Router>
+      <div className={`min-h-screen ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+        <Navbar theme={theme} toggleTheme={toggleTheme} />
+        
+        <main className="container mx-auto px-6 sm:px-8 lg:px-12 py-8">
+          <Routes>
+            <Route path="/" element={
+              <Home 
+                theme={theme}
+                handleSearch={handleSearch}
+                handleImageSearch={handleImageSearch}
+                loading={loading}
+                products={products}
+              />
+            }/>
+            <Route path="/features" element={<Features theme={theme} />} />
+            <Route path="/about" element={<About theme={theme} />} />
+          </Routes>
+        </main>
+
+        <Footer theme={theme} />
       </div>
-    </div>
-  )
+    </Router>
+  );
 }
 
-export default App 
+export default App; 
