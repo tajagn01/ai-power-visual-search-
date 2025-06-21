@@ -11,6 +11,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.32.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "axios": "^1.6.0",
     "react": "^18.2.0",
