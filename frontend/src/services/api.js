@@ -1,8 +1,10 @@
 import axios from 'axios'
 
-// Hardcoded backend API URL
+// Use environment variable for API base URL, fallback to current host for cross-device compatibility
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:5000/api`;
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: apiBaseUrl,
   timeout: 30000, // 30 seconds timeout for image uploads
   headers: {
     'Content-Type': 'application/json',

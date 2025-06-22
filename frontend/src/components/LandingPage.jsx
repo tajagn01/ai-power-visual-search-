@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes } from 'react-icons/fa';
+import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt } from 'react-icons/fa';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import { Popover, Transition } from '@headlessui/react';
 import ProductGrid from './ProductGrid';
 import Loader from './Loader';
 import FilterControls from './FilterControls';
-import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser, useClerk } from '@clerk/clerk-react';
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,7 +23,11 @@ const LandingPage = () => {
   const [ratingSort, setRatingSort] = useState('default');
 
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
+  const { openUserProfile, signOut } = useClerk();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
 
   // Vanta.js initialization
   useEffect(() => {
@@ -57,6 +61,23 @@ const LandingPage = () => {
       }
     };
   }, []);
+
+  // Close menu on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
 
   // Scroll to section
   const scrollToSection = (sectionId) => {
@@ -205,7 +226,42 @@ const LandingPage = () => {
                   </SignInButton>
                 </SignedOut>
                 <SignedIn>
-                  <UserButton afterSignOutUrl="/" />
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      className="flex items-center gap-2 bg-purple-600/30 rounded-full px-4 py-2 text-white font-semibold text-lg backdrop-blur-md border border-purple-400/40 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      onClick={() => setUserMenuOpen((open) => !open)}
+                      aria-haspopup="true"
+                      aria-expanded={userMenuOpen}
+                      type="button"
+                    >
+                      Hi! {user?.firstName || user?.username || 'User'}
+                      <FaUser className="w-5 h-5 text-purple-200" />
+                    </button>
+                    {userMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg py-2 z-50 border border-purple-200/40">
+                        <button
+                          onClick={() => {
+                            openUserProfile();
+                            setUserMenuOpen(false);
+                          }}
+                          className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-purple-100 rounded-t-xl transition-colors"
+                          type="button"
+                        >
+                          Profile
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await signOut();
+                            window.location.href = '/';
+                          }}
+                          className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-purple-100 rounded-b-xl transition-colors"
+                          type="button"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </SignedIn>
               </div>
             </div>
