@@ -12,7 +12,7 @@ const api = axios.create({
 // Text search function
 export const searchByText = async (query, page = 1) => {
   try {
-    const response = await api.get('/search/text', {
+    const response = await api.get('/search', {
       params: {
         q: query,
         page: page,

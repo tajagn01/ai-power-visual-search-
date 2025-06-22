@@ -6,7 +6,7 @@ import { Popover, Transition } from '@headlessui/react';
 import ProductGrid from './ProductGrid';
 import Loader from './Loader';
 import FilterControls from './FilterControls';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/clerk-react';
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +22,9 @@ const LandingPage = () => {
   const [priceSort, setPriceSort] = useState('default');
   const [ratingSort, setRatingSort] = useState('default');
 
+  const { isSignedIn } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   // Vanta.js initialization
   useEffect(() => {
     vantaEffectRef.current = NET({
@@ -31,12 +34,12 @@ const LandingPage = () => {
       touchControls: true,
       gyroControls: false,
       minHeight: 200.00,
-      minWidth: 200.00,
+      minWidth: 500.00,
       scale: 1.00,
       scaleMobile: 1.00,
       color: 0xffffff,
       backgroundColor: 0x0,
-      points: 4.00,
+      points: 10.00,
       maxDistance: 2.00,
       spacing: 17.00,
       showLines: true,
@@ -97,6 +100,10 @@ const LandingPage = () => {
   // Handle search
   const handleSearch = async (e) => {
     e.preventDefault();
+    if (!isSignedIn) {
+      setShowAuthModal(true);
+      return;
+    }
     if (!searchQuery.trim() && !isImageUploaded) return;
 
     setLoading(true);
@@ -171,11 +178,11 @@ const LandingPage = () => {
       {/* Vanta.js Background - Full Page */}
       <div 
         ref={vantaRef} 
-        className="fixed inset-0 w-full h-full"
+        className="fixed inset-0 w-full h-full overflow-x-hidden"
         style={{ zIndex: 0 }}
       />
       
-      <main className="relative z-10 flex flex-col min-h-screen">
+      <main className="relative z-10 flex flex-col min-h-screen overflow-x-hidden">
         {/* Navigation Bar */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/10">
           <div className="container mx-auto px-6">
@@ -255,7 +262,7 @@ const LandingPage = () => {
             </section>
 
             {/* Search Section */}
-            <section id="search-section" className="py-20 px-6">
+            <section id="search-section" className="py-20 px-6 transition-all duration-500">
             <div className="container mx-auto max-w-4xl">
                 <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12">
                 <div className="text-center mb-8">
@@ -267,68 +274,67 @@ const LandingPage = () => {
 
                 {/* Search Form */}
                 <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative">
-                    <div className="relative flex items-center w-full bg-white/10 backdrop-blur-sm rounded-full border-2 border-purple-500/30 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all">
+                  <div className="relative flex items-center w-full bg-white/10 backdrop-blur-sm rounded-full border-2 border-purple-500/30 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all">
                     <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        accept="image/*"
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      accept="image/*"
                     />
-                    
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
+                      <FaSearch className="h-5 w-5 text-gray-400" />
+                    </div>
                     {isImageUploaded ? (
-                        <div className="flex items-center w-full pl-4 pr-16 py-3">
-                        <div className="relative">
+                      <>
+                        <div className="flex items-center w-full pl-14 pr-24 py-3">
+                          <div className="relative">
                             <img src={imagePreview} alt="upload preview" className="w-10 h-10 rounded-full object-cover" />
-                        </div>
-                        <span className="ml-4 text-gray-300 flex-1">Image selected for search</span>
-                        <button
+                          </div>
+                          <span className="ml-4 text-gray-300 flex-1">Image selected for search</span>
+                          <button
                             type="button"
                             onClick={clearImage}
-                            className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors"
-                        >
+                            className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors ml-2"
+                          >
                             <FaTimes className="w-5 h-5"/>
-                        </button>
+                          </button>
                         </div>
+                      </>
                     ) : (
-                        <>
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
-                            <FaSearch className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search with text or upload an image..."
-                            className="w-full pl-14 pr-16 py-4 bg-transparent border-none focus:outline-none text-white placeholder-gray-400"
-                        />
-                        <div className="absolute right-2 flex items-center space-x-2">
-                            <button
-                            type="button"
-                            onClick={triggerImageUpload}
-                            className="p-2 rounded-full text-gray-400 hover:text-purple-400 hover:bg-purple-500/20 transition-colors"
-                            aria-label="Upload image"
-                            >
-                            <FaCamera className="h-5 w-5" />
-                            </button>
-                        </div>
-                        </>
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search with text or upload an image..."
+                        className="w-full pl-14 pr-24 py-4 bg-transparent border-none focus:outline-none text-white placeholder-gray-400"
+                      />
                     )}
+                    <div className="absolute right-14 flex items-center">
+                      <button
+                        type="button"
+                        onClick={triggerImageUpload}
+                        className="p-2 rounded-full text-gray-400 hover:text-purple-400 hover:bg-purple-500/20 transition-colors"
+                        aria-label="Upload image"
+                      >
+                        <FaCamera className="h-5 w-5" />
+                      </button>
                     </div>
                     <button
-                        type="submit"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-purple-600 rounded-full text-white hover:bg-purple-700 transition-all duration-300 hover:scale-110 active:scale-100"
-                        aria-label="Search"
-                        >
-                        <FaArrowRight className="h-5 w-5" />
+                      type="submit"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-purple-600 rounded-full text-white hover:bg-purple-700 transition-all duration-300 hover:scale-110 active:scale-100"
+                      aria-label="Search"
+                    >
+                      <FaArrowRight className="h-5 w-5" />
                     </button>
+                  </div>
                 </form>
                 </div>
             </div>
             </section>
 
             {/* Search Results Section */}
-            <section id="results-section" className="py-20 px-6">
+            <section id="results-section" className="py-20 px-6 transition-all duration-500">
                 <div className="container mx-auto max-w-7xl">
                     {loading && <Loader />}
                     {!loading && products.length > 0 && (
@@ -459,6 +465,28 @@ const LandingPage = () => {
           </div>
         </footer>
       </main>
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full text-center relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl"
+              onClick={() => setShowAuthModal(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold mb-4 text-gray-900">Sign Up or Log In</h2>
+            <p className="mb-6 text-gray-700">You must be signed in to use the search feature.</p>
+            <SignInButton mode="modal">
+              <button className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 w-full">
+                Sign Up / Log In
+              </button>
+            </SignInButton>
+          </div>
+        </div>
+      )}
     </>
   );
 };

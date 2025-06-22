@@ -7,6 +7,7 @@
 /* Base styles */
 html {
   background: #000000;
+  overflow-x: hidden;
 }
 
 body {
@@ -16,6 +17,7 @@ body {
   background-color: transparent;
   color: #f3f4f6; /* text-gray-100 */
   transition: color 0.3s ease;
+  overflow-x: hidden;
 }
 
 /* Custom scrollbar */
@@ -63,5 +65,7 @@ body {
 }
 
 .glass-card {
-  @apply backdrop-blur-md border border-white/10 shadow-lg bg-white/5;
+  @apply backdrop-blur-lg border border-white/20 shadow-2xl bg-white/20;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.10) 100%);
 }
