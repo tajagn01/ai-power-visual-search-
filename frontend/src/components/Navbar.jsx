@@ -5,7 +5,7 @@ import { FaSearch } from 'react-icons/fa';
 
 const Navbar = () => {
   return (
-    <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-200">
+    <header className="bg-black/50 backdrop-blur-md sticky top-0 z-50 border-b border-white/10">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
@@ -13,17 +13,17 @@ const Navbar = () => {
             <div className="p-2 bg-purple-600 rounded-lg">
               <FaSearch className="text-white h-5 w-5" />
             </div>
-            <span className="text-2xl font-bold text-gray-800">Searchify</span>
+            <span className="text-2xl font-bold text-gray-100">Searchify</span>
           </Link>
 
           {/* Auth controls */}
           <div className="flex items-center space-x-4">
             <SignedOut>
               <div className="flex items-center space-x-2">
-                <button className="text-gray-600 hover:text-purple-600 font-semibold transition">
+                <button className="text-gray-300 hover:text-purple-400 font-semibold transition">
                   Sign in
                 </button>
-                <button className="bg-purple-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                <button className="neon-button font-semibold px-4 py-2 rounded-lg">
                   Get Started
                 </button>
               </div>

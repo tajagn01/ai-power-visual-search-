@@ -4,11 +4,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base styles */
+html {
+  background: #000000;
+}
+
 body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8fafc; /* slate-50 */
+  background-color: transparent;
+  color: #f3f4f6; /* text-gray-100 */
+  transition: color 0.3s ease;
 }
 
 /* Custom scrollbar */
@@ -17,29 +24,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1e293b;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #475569;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Dark mode scrollbar */
-.dark ::-webkit-scrollbar-track {
-  background: #374151;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #6b7280;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
+  background: #64748b;
 }
 
 /* Smooth transitions */
@@ -61,4 +55,13 @@ body {
 /* Card hover effects */
 .card-hover {
   @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+
+/* Neon/Glass button styles */
+.neon-button {
+  @apply backdrop-blur-md border border-purple-500/30 shadow-lg shadow-purple-500/25 bg-white/10 text-gray-100 hover:bg-white/20 hover:border-purple-400/50 transition-all duration-300;
+}
+
+.glass-card {
+  @apply backdrop-blur-md border border-white/10 shadow-lg bg-white/5;
 }

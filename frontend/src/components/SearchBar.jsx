@@ -5,7 +5,7 @@ const SearchBar = ({ onSearch, onImageUpload, loading }) => {
   const [query, setQuery] = useState('');
   const [imagePreview, setImagePreview] = useState(null);
   const imageInputRef = useRef(null);
-
+  
   const handleTextSubmit = (e) => {
     e.preventDefault();
     if (query.trim() && !imagePreview) {
@@ -38,7 +38,7 @@ const SearchBar = ({ onSearch, onImageUpload, loading }) => {
 
   return (
     <form onSubmit={handleTextSubmit} className="max-w-2xl mx-auto">
-      <div className="relative flex items-center w-full bg-white rounded-full border-2 border-gray-200 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all text-lg">
+      <div className="relative flex items-center w-full glass-card rounded-full border-2 border-purple-500/30 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all text-lg">
         <input
           type="file"
           ref={imageInputRef}
@@ -57,7 +57,7 @@ const SearchBar = ({ onSearch, onImageUpload, loading }) => {
                     </div>
                 )}
             </div>
-            <span className="ml-4 text-gray-500 text-base truncate">Image selected for search</span>
+            <span className="ml-4 text-base truncate text-gray-300">Image selected for search</span>
             <button
                 type="button"
                 onClick={clearImage}
@@ -74,20 +74,20 @@ const SearchBar = ({ onSearch, onImageUpload, loading }) => {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search with text or upload an image..."
-              className="w-full pl-5 pr-28 py-3.5 bg-transparent border-none focus:outline-none text-base"
+              className="w-full pl-5 pr-28 py-3.5 bg-transparent border-none focus:outline-none text-base text-gray-100 placeholder-gray-400"
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
               <button
                 type="button"
                 onClick={triggerImageUpload}
-                className="p-2 rounded-full text-gray-500 hover:text-purple-600 hover:bg-purple-100 transition-colors"
+                className="p-2 rounded-full text-gray-400 hover:text-purple-400 hover:bg-purple-500/20 transition-colors"
                 aria-label="Upload an image"
               >
                 <FaCamera className="w-5 h-5" />
               </button>
               <button
                 type="submit"
-                className="ml-2 p-2 rounded-full text-gray-500 hover:text-purple-600 hover:bg-purple-100 transition-colors"
+                className="ml-2 p-2 rounded-full text-gray-400 hover:text-purple-400 hover:bg-purple-500/20 transition-colors"
                 aria-label="Search with text"
               >
                 <FaSearch className="w-5 h-5" />
