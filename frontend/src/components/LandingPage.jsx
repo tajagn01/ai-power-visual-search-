@@ -1,15 +1,26 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight } from 'react-icons/fa';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes } from 'react-icons/fa';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
+import { Popover, Transition } from '@headlessui/react';
+import ProductGrid from './ProductGrid';
+import Loader from './Loader';
+import FilterControls from './FilterControls';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isImageUploaded, setIsImageUploaded] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
   const vantaRef = useRef(null);
   const vantaEffectRef = useRef(null);
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [priceSort, setPriceSort] = useState('default');
+  const [ratingSort, setRatingSort] = useState('default');
 
   // Vanta.js initialization
   useEffect(() => {
@@ -62,11 +73,16 @@ const LandingPage = () => {
         setIsImageUploaded(true);
       };
       reader.readAsDataURL(file);
+      setImageFile(file);
     }
   };
 
   const triggerImageUpload = () => {
     fileInputRef.current?.click();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setImageFile(null);
   };
 
   const clearImage = () => {
@@ -75,16 +91,80 @@ const LandingPage = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    setImageFile(null);
   };
 
   // Handle search
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    if (searchQuery.trim() || isImageUploaded) {
-      console.log('Searching for:', searchQuery);
-      // Add your search logic here
+    if (!searchQuery.trim() && !isImageUploaded) return;
+
+    setLoading(true);
+    setProducts([]);
+
+    try {
+      let response;
+      if (isImageUploaded && imageFile) {
+        const formData = new FormData();
+        formData.append('image', imageFile);
+        
+        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/search/image`, {
+          method: 'POST',
+          body: formData,
+        });
+      } else {
+        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/search?q=${encodeURIComponent(searchQuery)}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Handle both nested and flat response structures
+      const amazonProducts = data.data?.amazon || data.amazon || [];
+      const newApiProducts = data.data?.newApi || data.newApi || [];
+      
+      const combinedProducts = [...amazonProducts, ...newApiProducts];
+      
+      setProducts(combinedProducts);
+
+      if (combinedProducts.length > 0) {
+        setTimeout(() => scrollToSection('results-section'), 100);
+      }
+
+    } catch (error) {
+      console.error('Search error:', error);
+      setProducts([]);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const sortedProducts = useMemo(() => {
+    let productsToSort = [...products];
+
+    // Price sort
+    if (priceSort !== 'default') {
+      productsToSort.sort((a, b) => {
+        const priceA = parseFloat(a.price?.toString().replace(/[^\d.]/g, '')) || 0;
+        const priceB = parseFloat(b.price?.toString().replace(/[^\d.]/g, '')) || 0;
+        return priceSort === 'asc' ? priceA - priceB : priceB - priceA;
+      });
+    }
+
+    // Rating sort
+    if (ratingSort !== 'default') {
+      productsToSort.sort((a, b) => {
+        const ratingA = parseFloat(a.rating) || 0;
+        const ratingB = parseFloat(b.rating) || 0;
+        return ratingSort === 'desc' ? ratingB - ratingA : ratingA - ratingB;
+      });
+    }
+
+    return productsToSort;
+  }, [products, priceSort, ratingSort]);
 
   return (
     <>
@@ -110,9 +190,16 @@ const LandingPage = () => {
 
               {/* Actions */}
               <div className="flex items-center space-x-4">
-                <button className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 hover:scale-105">
-                  Sign In
-                </button>
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 hover:scale-105">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" />
+                </SignedIn>
               </div>
             </div>
           </div>
@@ -179,7 +266,7 @@ const LandingPage = () => {
                 </div>
 
                 {/* Search Form */}
-                <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
+                <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative">
                     <div className="relative flex items-center w-full bg-white/10 backdrop-blur-sm rounded-full border-2 border-purple-500/30 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all">
                     <input
                         type="file"
@@ -190,7 +277,7 @@ const LandingPage = () => {
                     />
                     
                     {isImageUploaded ? (
-                        <div className="flex items-center w-full pl-4 pr-4 py-3">
+                        <div className="flex items-center w-full pl-4 pr-16 py-3">
                         <div className="relative">
                             <img src={imagePreview} alt="upload preview" className="w-10 h-10 rounded-full object-cover" />
                         </div>
@@ -200,7 +287,7 @@ const LandingPage = () => {
                             onClick={clearImage}
                             className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors"
                         >
-                            ✕
+                            <FaTimes className="w-5 h-5"/>
                         </button>
                         </div>
                     ) : (
@@ -213,7 +300,7 @@ const LandingPage = () => {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search with text or upload an image..."
-                            className="w-full pl-14 pr-28 py-4 bg-transparent border-none focus:outline-none text-white placeholder-gray-400"
+                            className="w-full pl-14 pr-16 py-4 bg-transparent border-none focus:outline-none text-white placeholder-gray-400"
                         />
                         <div className="absolute right-2 flex items-center space-x-2">
                             <button
@@ -224,20 +311,60 @@ const LandingPage = () => {
                             >
                             <FaCamera className="h-5 w-5" />
                             </button>
-                            <button
-                            type="submit"
-                            className="p-2 rounded-full text-gray-400 hover:text-purple-400 hover:bg-purple-500/20 transition-colors"
-                            aria-label="Search"
-                            >
-                            <FaSearch className="h-5 w-5" />
-                            </button>
                         </div>
                         </>
                     )}
                     </div>
+                    <button
+                        type="submit"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-purple-600 rounded-full text-white hover:bg-purple-700 transition-all duration-300 hover:scale-110 active:scale-100"
+                        aria-label="Search"
+                        >
+                        <FaArrowRight className="h-5 w-5" />
+                    </button>
                 </form>
                 </div>
             </div>
+            </section>
+
+            {/* Search Results Section */}
+            <section id="results-section" className="py-20 px-6">
+                <div className="container mx-auto max-w-7xl">
+                    {loading && <Loader />}
+                    {!loading && products.length > 0 && (
+                    <>
+                        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                            <h2 className="text-3xl md:text-4xl font-bold text-white">Search Results</h2>
+                            <Popover className="relative">
+                                <Popover.Button className="neon-button inline-flex items-center gap-x-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95">
+                                    <FaFilter className="h-4 w-4 text-gray-300" />
+                                    <span>Filter</span>
+                                </Popover.Button>
+                                <Transition
+                                    enter="transition ease-out duration-200"
+                                    enterFrom="opacity-0 translate-y-1"
+                                    enterTo="opacity-100 translate-y-0"
+                                    leave="transition ease-in duration-150"
+                                    leaveFrom="opacity-100 translate-y-0"
+                                    leaveTo="opacity-0 translate-y-1"
+                                >
+                                    <Popover.Panel className="absolute right-0 z-10 mt-3 w-screen max-w-xs transform">
+                                    <div className="glass-card overflow-hidden rounded-xl">
+                                        <FilterControls
+                                            priceSort={priceSort}
+                                            setPriceSort={setPriceSort}
+                                            ratingSort={ratingSort}
+                                            setRatingSort={setRatingSort}
+                                        />
+                                    </div>
+                                    </Popover.Panel>
+                                </Transition>
+                            </Popover>
+                        </div>
+                        <ProductGrid products={sortedProducts} />
+                    </>
+                    )}
+                </div>
             </section>
 
             {/* Features Section */}
