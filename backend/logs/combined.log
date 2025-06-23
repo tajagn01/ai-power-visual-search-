@@ -856,3 +856,6 @@
 {"level":"info","message":"newapi_transformed_products_count: 20","service":"ai-ecommerce-backend","timestamp":"2025-06-23 20:56:48"}
 {"level":"info","message":"[SEARCH] query=\"condom\" | Amazon=48 | NewAPI=20","service":"ai-ecommerce-backend","timestamp":"2025-06-23 20:56:48"}
 {"level":"info","message":"::1 - - [23/Jun/2025:15:26:48 +0000] \"GET /api/search?q=condom HTTP/1.1\" 200 32145 \"http://localhost:3000/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36\"","service":"ai-ecommerce-backend","timestamp":"2025-06-23 20:56:48"}
+{"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-23 22:33:03"}
+{"level":"info","message":"📁 Upload directory: C:\\Users\\TAJAGN\\OneDrive\\Desktop\\ai\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-23 22:33:03"}
+{"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-23 22:33:03"}
