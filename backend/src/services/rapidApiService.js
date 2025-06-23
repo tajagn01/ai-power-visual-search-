@@ -6,7 +6,7 @@ const rapidApiClient = axios.create({
   baseURL: 'https://real-time-amazon-data.p.rapidapi.com',
   timeout: 30000,
   headers: {
-    'X-RapidAPI-Key': '4bbc952f27mshe643a7836b35113p181449jsn04b7f9ed1e5f',
+    'X-RapidAPI-Key': '7a2d1b3ec9msh247376052bb8cbdp1033fajsn146feaeca9cf',
     'X-RapidAPI-Host': 'real-time-amazon-data.p.rapidapi.com',
     'Content-Type': 'application/json'
   }
@@ -17,7 +17,7 @@ const newApiClient = axios.create({
   baseURL: 'https://real-time-product-search.p.rapidapi.com',
   timeout: 30000,
   headers: {
-    'x-rapidapi-key': '4bbc952f27mshe643a7836b35113p181449jsn04b7f9ed1e5f',
+    'x-rapidapi-key': '7a2d1b3ec9msh247376052bb8cbdp1033fajsn146feaeca9cf',
     'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com',
     'Content-Type': 'application/json'
   }
