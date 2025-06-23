@@ -135,7 +135,7 @@ const LandingPage = () => {
       if (isImageUploaded && imageFile) {
         const formData = new FormData();
         formData.append('image', imageFile);
-        
+
         response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/search/image`, {
           method: 'POST',
           body: formData,
@@ -147,15 +147,15 @@ const LandingPage = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       // Handle both nested and flat response structures
       const amazonProducts = data.data?.amazon || data.amazon || [10];
       const newApiProducts = data.data?.newApi || data.newApi || [10];
-      
+
       const combinedProducts = [...amazonProducts, ...newApiProducts];
-      
+
       setProducts(combinedProducts);
 
       if (combinedProducts.length > 0) {
@@ -197,12 +197,12 @@ const LandingPage = () => {
   return (
     <>
       {/* Vanta.js Background - Full Page */}
-      <div 
-        ref={vantaRef} 
+      <div
+        ref={vantaRef}
         className="fixed inset-0 w-full h-full overflow-x-hidden"
         style={{ zIndex: 0 }}
       />
-      
+
       <main className="relative z-10 flex flex-col min-h-screen overflow-x-hidden">
         {/* Navigation Bar */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/10">
@@ -269,67 +269,70 @@ const LandingPage = () => {
         </nav>
 
         <div className="flex-grow">
-            {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center justify-center px-6 pt-16">
+          {/* Hero Section */}
+          <section className="relative min-h-screen flex items-center justify-center px-6 pt-16">
             <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12 max-w-4xl w-full text-center">
-                {/* Hero Content */}
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              {/* Hero Content */}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 Find what you're looking for{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                    instantly
+                  instantly
                 </span>
-                </h1>
-                
-                <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Upload your files and search through them with our powerful AI-powered search engine. 
+              </h1>
+
+              <p className="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Upload your files and search through them with our powerful AI-powered search engine.
                 Get results in seconds with lightning-fast performance.
-                </p>
+              </p>
 
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
-                <button 
-                    onClick={() => scrollToSection('search-section')}
-                    className="group bg-purple-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-purple-700 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25"
-                >
-                    Get Started
-                    <FaArrowRight className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
-                </button>
-                
-                <button 
-                    onClick={() => scrollToSection('features-section')}
-                    className="group border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm"
-                >
-                    Learn More
-                    <FaArrowRight className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
-                </button>
-                </div>
-
-                {/* Scroll Indicator */}
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
                 <button
-                    onClick={() => scrollToSection('search-section')}
-                    className="text-white/70 hover:text-white transition-colors duration-300 animate-bounce"
-                    aria-label="Scroll down"
+                  onClick={() => scrollToSection('search-section')}
+                  className="group bg-purple-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-purple-700 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25"
                 >
-                    <FaChevronDown className="h-6 w-6" />
+                  Get Started
+                  <FaArrowRight className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
                 </button>
-                </div>
-            </div>
-            </section>
 
-            {/* Search Section */}
-            <section id="search-section" className="py-20 px-6 transition-all duration-500">
+                <button
+                  onClick={() => scrollToSection('features-section')}
+                  className="group border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm"
+                >
+                  Learn More
+                  <FaArrowRight className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
+
+              {/* Scroll Indicator */}
+              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+                <button
+                  onClick={() => scrollToSection('search-section')}
+                  className="text-white/70 hover:text-white transition-colors duration-300 animate-bounce"
+                  aria-label="Scroll down"
+                >
+                  <FaChevronDown className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Search Section */}
+          <section id="search-section" className="py-20 px-6 transition-all duration-500">
             <div className="container mx-auto max-w-4xl">
-                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12">
+              <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12 z-50">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Try Our Search</h2>
-                    <p className="text-lg text-gray-300">
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Try Our Search</h2>
+                  <p className="text-lg text-gray-300">
                     Use text for keyword search or upload an image to find visually similar products.
-                    </p>
+                  </p>
                 </div>
 
                 {/* Search Form */}
-                <form onSubmit={handleSearch} className="max-w-2xl mx-auto relative">
+                <form
+                  onSubmit={handleSearch}
+                  className="max-w-2xl mx-auto relative"
+                >
                   <div className="relative flex items-center w-full bg-white/10 backdrop-blur-sm rounded-full border-2 border-purple-500/30 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all">
                     <input
                       type="file"
@@ -342,21 +345,25 @@ const LandingPage = () => {
                       <FaSearch className="h-5 w-5 text-gray-400" />
                     </div>
                     {isImageUploaded ? (
-                      <>
-                        <div className="flex items-center w-full pl-14 pr-24 py-3">
-                          <div className="relative">
-                            <img src={imagePreview} alt="upload preview" className="w-10 h-10 rounded-full object-cover" />
-                          </div>
-                          <span className="ml-4 text-gray-300 flex-1">Image selected for search</span>
-                          <button
-                            type="button"
-                            onClick={clearImage}
-                            className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors ml-2"
-                          >
-                            <FaTimes className="w-5 h-5"/>
-                          </button>
+                      <div className="flex items-center w-full pl-14 pr-24 py-3">
+                        <div className="relative">
+                          <img
+                            src={imagePreview}
+                            alt="upload preview"
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
                         </div>
-                      </>
+                        <span className="ml-4 text-gray-300 flex-1">
+                          Image selected for search
+                        </span>
+                        <button
+                          type="button"
+                          onClick={clearImage}
+                          className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors ml-2"
+                        >
+                          <FaTimes className="w-5 h-5" />
+                        </button>
+                      </div>
                     ) : (
                       <input
                         type="text"
@@ -378,124 +385,125 @@ const LandingPage = () => {
                     </div>
                     <button
                       type="submit"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-purple-600 rounded-full text-white hover:bg-purple-700 transition-all duration-300 hover:scale-110 active:scale-100"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-purple-600 border border-white z-50 rounded-full text-white hover:bg-purple-700 transition-all duration-300 hover:scale-110 active:scale-100"
                       aria-label="Search"
                     >
                       <FaArrowRight className="h-5 w-5" />
                     </button>
                   </div>
                 </form>
-                </div>
+
+              </div>
             </div>
-            </section>
+          </section>
 
-            {/* Search Results Section */}
-            <section id="results-section" className="py-20 px-6 transition-all duration-500">
-                <div className="container mx-auto max-w-7xl">
-                    {loading && <Loader />}
-                    {!loading && products.length > 0 && (
-                    <>
-                        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                            <h2 className="text-3xl md:text-4xl font-bold text-white">Search Results</h2>
-                            <Popover className="relative">
-                                <Popover.Button className="neon-button inline-flex items-center gap-x-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95">
-                                    <FaFilter className="h-4 w-4 text-gray-300" />
-                                    <span>Filter</span>
-                                </Popover.Button>
-                                <Transition
-                                    enter="transition ease-out duration-200"
-                                    enterFrom="opacity-0 translate-y-1"
-                                    enterTo="opacity-100 translate-y-0"
-                                    leave="transition ease-in duration-150"
-                                    leaveFrom="opacity-100 translate-y-0"
-                                    leaveTo="opacity-0 translate-y-1"
-                                >
-                                    <Popover.Panel className="absolute right-0 z-10 mt-3 w-screen max-w-xs transform">
-                                    <div className="glass-card overflow-hidden rounded-xl">
-                                        <FilterControls
-                                            priceSort={priceSort}
-                                            setPriceSort={setPriceSort}
-                                            ratingSort={ratingSort}
-                                            setRatingSort={setRatingSort}
-                                        />
-                                    </div>
-                                    </Popover.Panel>
-                                </Transition>
-                            </Popover>
-                        </div>
-                        <ProductGrid products={sortedProducts} />
-                    </>
-                    )}
-                </div>
-            </section>
+          {/* Search Results Section */}
+          <section id="results-section" className="py-20 px-6 transition-all duration-500">
+            <div className="container mx-auto max-w-7xl">
+              {loading && <Loader />}
+              {!loading && products.length > 0 && (
+                <>
+                  <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white">Search Results</h2>
+                    <Popover className="relative">
+                      <Popover.Button className="neon-button inline-flex items-center gap-x-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95">
+                        <FaFilter className="h-4 w-4 text-gray-300" />
+                        <span>Filter</span>
+                      </Popover.Button>
+                      <Transition
+                        enter="transition ease-out duration-200"
+                        enterFrom="opacity-0 translate-y-1"
+                        enterTo="opacity-100 translate-y-0"
+                        leave="transition ease-in duration-150"
+                        leaveFrom="opacity-100 translate-y-0"
+                        leaveTo="opacity-0 translate-y-1"
+                      >
+                        <Popover.Panel className="absolute right-0 z-10 mt-3 w-screen max-w-xs transform">
+                          <div className="glass-card overflow-hidden rounded-xl">
+                            <FilterControls
+                              priceSort={priceSort}
+                              setPriceSort={setPriceSort}
+                              ratingSort={ratingSort}
+                              setRatingSort={setRatingSort}
+                            />
+                          </div>
+                        </Popover.Panel>
+                      </Transition>
+                    </Popover>
+                  </div>
+                  <ProductGrid products={sortedProducts} />
+                </>
+              )}
+            </div>
+          </section>
 
-            {/* Features Section */}
-            <section id="features-section" className="py-20 px-6">
+          {/* Features Section */}
+          <section id="features-section" className="py-20 px-6">
             <div className="container mx-auto max-w-6xl">
-                <div className="text-center mb-12">
+              <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Powerful Search Features</h2>
                 <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                    Our platform offers advanced search capabilities to help you find exactly what you need.
+                  Our platform offers advanced search capabilities to help you find exactly what you need.
                 </p>
-                </div>
+              </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-3 gap-8">
                 {/* Feature 1 */}
                 <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105">
-                    <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
                     <FaBolt className="text-purple-400 h-8 w-8" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-4 text-center">Lightning Fast</h3>
-                    <p className="text-gray-300 text-center">
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-4 text-center">Lightning Fast</h3>
+                  <p className="text-gray-300 text-center">
                     Get instant search results across all your documents with our optimized search engine.
-                    </p>
+                  </p>
                 </div>
 
                 {/* Feature 2 */}
                 <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105">
-                    <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
                     <FaBrain className="text-purple-400 h-8 w-8" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-4 text-center">AI-Powered</h3>
-                    <p className="text-gray-300 text-center">
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-4 text-center">AI-Powered</h3>
+                  <p className="text-gray-300 text-center">
                     Our AI understands document context and delivers more relevant search results.
-                    </p>
+                  </p>
                 </div>
 
                 {/* Feature 3 */}
                 <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105">
-                    <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
                     <FaLock className="text-purple-400 h-8 w-8" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-white mb-4 text-center">Secure & Private</h3>
-                    <p className="text-gray-300 text-center">
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-4 text-center">Secure & Private</h3>
+                  <p className="text-gray-300 text-center">
                     Your documents are encrypted and your searches are private. You own your data.
-                    </p>
+                  </p>
                 </div>
-                </div>
+              </div>
             </div>
-            </section>
+          </section>
 
-            {/* CTA Section */}
-            <section className="py-20 px-6">
+          {/* CTA Section */}
+          <section className="py-20 px-6">
             <div className="container mx-auto max-w-4xl text-center">
-                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12">
+              <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Ready to get started?</h2>
                 <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
-                    Join thousands of users who are already using our powerful search platform.
+                  Join thousands of users who are already using our powerful search platform.
                 </p>
-                <button 
-                    onClick={() => scrollToSection('search-section')}
-                    className="bg-purple-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-purple-700 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25"
+                <button
+                  onClick={() => scrollToSection('search-section')}
+                  className="bg-purple-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-purple-700 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25"
                 >
-                    Start Searching Now
-                    <FaArrowRight className="inline-block ml-2" />
+                  Start Searching Now
+                  <FaArrowRight className="inline-block ml-2" />
                 </button>
-                </div>
+              </div>
             </div>
-            </section>
+          </section>
         </div>
-        
+
 
         {/* Footer */}
         <footer className="py-12 px-6 border-t border-white/10">
@@ -507,14 +515,14 @@ const LandingPage = () => {
                 </div>
                 <span className="text-xl font-bold text-white">Searchify</span>
               </div>
-              
+
               <div className="flex items-center space-x-6 text-gray-400">
                 <a href="#" className="hover:text-white transition-colors">Privacy</a>
                 <a href="#" className="hover:text-white transition-colors">Terms</a>
                 <a href="#" className="hover:text-white transition-colors">Contact</a>
               </div>
             </div>
-            
+
             <div className="mt-8 pt-8 border-t border-white/10 text-center text-gray-400">
               <p>&copy; {new Date().getFullYear()} Searchify. All rights reserved.</p>
             </div>
