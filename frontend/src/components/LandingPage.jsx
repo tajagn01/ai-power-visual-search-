@@ -136,12 +136,12 @@ const LandingPage = () => {
         const formData = new FormData();
         formData.append('image', imageFile);
 
-        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/search/image`, {
+        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://ai-power-visual-search.onrender.com'}/api/search/image`, {
           method: 'POST',
           body: formData,
         });
       } else {
-        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/search?q=${encodeURIComponent(searchQuery)}`);
+        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://ai-power-visual-search.onrender.com'}/api/search?q=${encodeURIComponent(searchQuery)}`);
       }
 
       if (!response.ok) {
