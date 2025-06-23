@@ -136,12 +136,12 @@ const LandingPage = () => {
         const formData = new FormData();
         formData.append('image', imageFile);
 
-        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/search/image`, {
+        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://ai-power-visual-search.onrender.com'}/api/search/image`, {
           method: 'POST',
           body: formData,
         });
       } else {
-        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/api/search?q=${encodeURIComponent(searchQuery)}`);
+        response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://ai-power-visual-search.onrender.com'}/api/search?q=${encodeURIComponent(searchQuery)}`);
       }
 
       if (!response.ok) {
@@ -151,7 +151,7 @@ const LandingPage = () => {
       const data = await response.json();
 
       // Handle both nested and flat response structures
-      const amazonProducts = data.data?.amazon || data.amazon || [10];
+      const amazonProducts = data.data?.amazon || data.amazon || [3];
       const newApiProducts = data.data?.newApi || data.newApi || [10];
 
       const combinedProducts = [...amazonProducts, ...newApiProducts];
@@ -205,7 +205,7 @@ const LandingPage = () => {
 
       <main className="relative z-10 flex flex-col min-h-screen overflow-x-hidden">
         {/* Navigation Bar */}
-        <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/10">
+        <nav className="top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/10">
           <div className="container mx-auto px-6">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
