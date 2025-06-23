@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Use environment variable for API base URL, fallback to current host for cross-device compatibility
-const apiBaseUrl = "https://ai-power-visual-search.onrender.com/api";
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "https://ai-power-visual-search.onrender.com/api";
 
 const api = axios.create({
   baseURL: apiBaseUrl,
