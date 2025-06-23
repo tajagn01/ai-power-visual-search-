@@ -151,8 +151,8 @@ const LandingPage = () => {
       const data = await response.json();
       
       // Handle both nested and flat response structures
-      const amazonProducts = data.data?.amazon || data.amazon || [];
-      const newApiProducts = data.data?.newApi || data.newApi || [];
+      const amazonProducts = data.data?.amazon || data.amazon || [10];
+      const newApiProducts = data.data?.newApi || data.newApi || [10];
       
       const combinedProducts = [...amazonProducts, ...newApiProducts];
       
