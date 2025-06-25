@@ -7,6 +7,7 @@ import ProductGrid from './ProductGrid';
 import Loader from './Loader';
 import FilterControls from './FilterControls';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser, useClerk } from '@clerk/clerk-react';
+import MouseFollower from './MouseFollower';
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -251,6 +252,7 @@ const LandingPage = () => {
 
   return (
     <>
+      <MouseFollower />
       {/* Vanta.js Background - Full Page */}
       <div
         ref={vantaRef}
