@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt, FaMicrophone } from 'react-icons/fa';
+import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt, FaMicrophone, FaSpinner } from 'react-icons/fa';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import { Popover, Transition } from '@headlessui/react';
@@ -37,6 +37,18 @@ const LandingPage = () => {
   const [displayed, setDisplayed] = useState('');
   const [wordIdx, setWordIdx] = useState(0);
   const [typing, setTyping] = useState(true);
+
+  const placeholderExamples = [
+    'headphones',
+    'wireless mouse',
+    'gaming laptop',
+    'DSLR camera',
+    'Bluetooth speaker',
+    'Nike shoes',
+  ];
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
+  const [placeholderText, setPlaceholderText] = useState('');
+  const [typingPlaceholder, setTypingPlaceholder] = useState(true);
 
   // Vanta.js initialization
   useEffect(() => {
@@ -250,6 +262,31 @@ const LandingPage = () => {
     return () => clearTimeout(timeout);
   }, [displayed, typing, wordIdx]);
 
+  // Typewriter effect for placeholder
+  useEffect(() => {
+    let timeout;
+    const currentWord = placeholderExamples[placeholderIdx];
+    if (typingPlaceholder) {
+      if (placeholderText.length < currentWord.length) {
+        timeout = setTimeout(() => {
+          setPlaceholderText(currentWord.slice(0, placeholderText.length + 1));
+        }, 90);
+      } else {
+        timeout = setTimeout(() => setTypingPlaceholder(false), 1200);
+      }
+    } else {
+      if (placeholderText.length > 0) {
+        timeout = setTimeout(() => {
+          setPlaceholderText(currentWord.slice(0, placeholderText.length - 1));
+        }, 50);
+      } else {
+        setTypingPlaceholder(true);
+        setPlaceholderIdx((placeholderIdx + 1) % placeholderExamples.length);
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [placeholderText, typingPlaceholder, placeholderIdx]);
+
   return (
     <>
       <MouseFollower />
@@ -392,14 +429,26 @@ const LandingPage = () => {
                 <form
                   onSubmit={handleSearch}
                   className="max-w-2xl mx-auto relative"
+                  role="search"
+                  aria-label="Product search"
                 >
-                  <div className="relative flex items-center w-full bg-white/10 backdrop-blur-sm rounded-full border-2 border-purple-500/30 focus-within:ring-2 focus-within:ring-purple-400 focus-within:border-purple-400 transition-all">
+                  <div
+                    className={
+                      `relative flex items-center w-full bg-white/10 backdrop-blur-sm rounded-full border-2 border-purple-500/30 focus-within:ring-4 focus-within:ring-purple-400/40 focus-within:border-purple-400 transition-all duration-300 shadow-xl overflow-hidden` +
+                      (loading ? ' opacity-80 pointer-events-none' : '')
+                    }
+                    style={{
+                      boxShadow: '0 2px 32px 0 #a78bfa33, 0 1.5px 8px 0 #c026d355',
+                      background: 'linear-gradient(90deg, rgba(168,139,250,0.13) 0%, rgba(192,38,211,0.10) 100%)',
+                    }}
+                  >
                     <input
                       type="file"
                       ref={fileInputRef}
                       onChange={handleImageUpload}
                       className="hidden"
                       accept="image/*"
+                      tabIndex={-1}
                     />
                     <div className="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none">
                       <FaSearch className="h-5 w-5 text-gray-400" />
@@ -410,7 +459,7 @@ const LandingPage = () => {
                           <img
                             src={imagePreview}
                             alt="upload preview"
-                            className="w-10 h-10 rounded-full object-cover"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-purple-400 shadow-md"
                           />
                         </div>
                         <span className="ml-4 text-gray-300 flex-1">
@@ -419,7 +468,8 @@ const LandingPage = () => {
                         <button
                           type="button"
                           onClick={clearImage}
-                          className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors ml-2"
+                          className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors ml-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                          aria-label="Remove image"
                         >
                           <FaTimes className="w-5 h-5" />
                         </button>
@@ -429,35 +479,42 @@ const LandingPage = () => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search with text or upload an image..."
-                        className="w-full pl-14 pr-24 py-4 bg-transparent border-none focus:outline-none text-white placeholder-gray-400"
+                        placeholder={`Search for ${placeholderText}`}
+                        className="w-full pl-14 pr-24 py-4 bg-transparent border-none focus:outline-none text-white placeholder-gray-400 text-base md:text-lg"
+                        aria-label="Search for products"
+                        autoComplete="off"
+                        disabled={loading}
                       />
                     )}
                     <div className="absolute right-14 flex items-center">
                       <button
                         type="button"
                         onClick={triggerImageUpload}
-                        className="p-2 rounded-full text-gray-400 hover:text-purple-400 hover:bg-purple-500/20 transition-colors"
+                        className="p-3 rounded-full text-gray-400 hover:text-purple-400 hover:bg-purple-500/20 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400"
                         aria-label="Upload image"
+                        tabIndex={0}
                       >
                         <FaCamera className="h-5 w-5" />
                       </button>
                       <button
                         type="button"
                         onClick={handleVoiceSearch}
-                        className={`ml-2 p-2 rounded-full ${isListening ? 'bg-green-500 text-white' : 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/20'} transition-colors`}
+                        className={`ml-2 p-3 rounded-full ${isListening ? 'bg-green-500 text-white' : 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/20'} transition-colors focus:outline-none focus:ring-2 focus:ring-purple-400`}
                         aria-label="Voice search"
                         title="Voice search"
+                        tabIndex={0}
                       >
                         <FaMicrophone className="h-5 w-5" />
                       </button>
                     </div>
                     <button
                       type="submit"
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-purple-600 border border-white z-50 rounded-full text-white hover:bg-purple-700 transition-all duration-300 hover:scale-110 active:scale-100"
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-purple-600 border border-white z-50 rounded-full text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-400 hover:bg-purple-700 hover:scale-110 active:scale-100 ${loading ? 'animate-spin-slow' : ''}`}
                       aria-label="Search"
+                      tabIndex={0}
+                      disabled={loading}
                     >
-                      <FaArrowRight className="h-5 w-5" />
+                      {loading ? <FaSpinner className="h-5 w-5 animate-spin" /> : <FaArrowRight className="h-5 w-5" />}
                     </button>
                   </div>
                 </form>
