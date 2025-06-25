@@ -23,7 +23,7 @@ const searchByText = async (req, res) => {
     const country = 'IN'
 
     // Fetch Amazon products
-    const amazonProducts = await rapidApiService.searchProducts(query.trim(), parseInt(page), parseInt(limit), country)
+    const amazonProducts = await rapidApiService.searchProducts(query.trim(), parseInt(page), 10, country)
       .catch(error => {
         logger.error(`Error fetching Amazon products: ${error.message}`);
         return []; // Return empty array on error
@@ -104,7 +104,7 @@ const searchByImage = async (req, res) => {
     const country = 'IN'
 
     // Only fetch Amazon products by keywords
-    const amazonProducts = await rapidApiService.searchByKeywords(keywords, null, 20, country)
+    const amazonProducts = await rapidApiService.searchByKeywords(keywords, null, 10, country)
       .catch(error => {
         logger.error(`Error fetching Amazon products by keywords: ${error.message}`);
         return []; // Return empty on error

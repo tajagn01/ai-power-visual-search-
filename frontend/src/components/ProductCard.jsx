@@ -10,7 +10,8 @@ const ProductCard = ({ product }) => {
     price = 'Price not available', 
     rating = null, 
     source = product.brand || 'Store', // Use brand as fallback for source
-    product_url = product.amazonUrl || product.url || '#' // Use amazonUrl as fallback for product_url
+    product_url = product.amazonUrl || product.url || '#', // Use amazonUrl as fallback for product_url
+    description = product.description || '' // Use description as fallback for description
   } = product;
 
   const handleCardClick = (e) => {
@@ -23,69 +24,69 @@ const ProductCard = ({ product }) => {
   };
   
   return (
-    <div 
+    <div
       onClick={handleCardClick}
-      className="glass-card rounded-xl overflow-hidden shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1 transform-gpu cursor-pointer group flex flex-col h-full"
+      className="glass-card rounded-xl overflow-hidden shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1 transform-gpu cursor-pointer group flex flex-col h-full max-w-xs w-full mx-auto p-1 min-w-0"
     >
       {/* Image Section */}
-      <div className="relative aspect-square w-full overflow-hidden bg-gray-900">
-        <img 
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-          src={thumbnail} 
-          alt={title} 
+      <div className="relative w-full aspect-[3/4] bg-gray-900 overflow-hidden">
+        <img
+          className="w-full h-full object-cover"
+          src={thumbnail}
+          alt={title}
           loading="lazy"
         />
         
-        {/* Source Badge */}
-        <div className="absolute top-3 left-3 bg-purple-600/90 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm">
-          {source}
-        </div>
-        
         {/* External Link Icon */}
-        <a 
+        <a
           href={product_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="product-link-icon absolute top-3 right-3 p-2 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-purple-600"
+          className="product-link-icon absolute top-3 right-3 p-1 bg-black/50 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-purple-600"
           aria-label="View product page"
         >
-          <FaExternalLinkAlt className="w-4 h-4" />
+          <FaExternalLinkAlt className="w-3 h-3" />
         </a>
         
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
       </div>
 
       {/* Content Section */}
-      <div className="p-4 flex flex-col flex-grow">
+      <div className="p-2 flex flex-col flex-grow min-w-0">
         {/* Title */}
-        <h3 className="font-bold text-lg text-gray-100 leading-tight line-clamp-2" title={title}>
+        <h3 className="font-bold text-xs text-gray-100 leading-tight truncate" title={title}>
           {title}
         </h3>
+        {description && (
+          <p className="text-[11px] text-gray-400 mt-1 line-clamp-2">{description}</p>
+        )}
 
         {/* Spacer to push content to bottom */}
         <div className="flex-grow" />
 
         {/* Price and Rating Row */}
-        <div className="flex justify-between items-center mt-4">
-            <p className="text-gray-200 text-xl font-semibold">
-              {price}
-            </p>
-            {rating && (
-              <div className="flex items-center">
-                <StarRating rating={rating} />
-                <span className="text-xs text-gray-400 ml-1.5">({rating})</span>
-              </div>
-            )}
+        <div className="mt-2 flex flex-col items-start">
+          <p className="text-gray-200 text-base font-semibold">{price}</p>
+          {rating && (
+            <div className="flex items-center mt-1">
+              <StarRating rating={rating} className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="text-xs text-gray-400 ml-1">({rating})</span>
+            </div>
+          )}
         </div>
 
         {/* Buy Button */}
-        <div className="mt-4">
+        <div className="mt-2">
           <button
             onClick={() => window.open(product_url, '_blank', 'noopener,noreferrer')}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25 flex items-center justify-center gap-2"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-2 rounded-lg text-xs"
           >
-            <FaShoppingCart className="w-4 h-4" />
-            <span>Buy Now</span>
+            {source && source.toLowerCase().includes('flip') ? 'Buy on Flipkart'
+              : source && source.toLowerCase().includes('amazon') ? 'Buy on Amazon'
+              : source && source.toLowerCase().includes('myntra') ? 'Buy on Myntra'
+              : source && source.toLowerCase().includes('meesho') ? 'Buy on Meesho'
+              : source ? `Buy on ${source}`
+              : 'Buy Now'}
           </button>
         </div>
       </div>

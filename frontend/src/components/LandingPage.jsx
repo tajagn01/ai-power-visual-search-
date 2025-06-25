@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt, FaMicrophone } from 'react-icons/fa';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import { Popover, Transition } from '@headlessui/react';
@@ -28,6 +28,14 @@ const LandingPage = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
+
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+
+  const words = ['search', 'match'];
+  const [displayed, setDisplayed] = useState('');
+  const [wordIdx, setWordIdx] = useState(0);
+  const [typing, setTyping] = useState(true);
 
   // Vanta.js initialization
   useEffect(() => {
@@ -118,6 +126,29 @@ const LandingPage = () => {
     setImageFile(null);
   };
 
+  const handleVoiceSearch = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Voice search is not supported in this browser.');
+      return;
+    }
+    if (!recognitionRef.current) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.lang = 'en-US';
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.maxAlternatives = 1;
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setSearchQuery(transcript);
+        setIsListening(false);
+      };
+      recognitionRef.current.onerror = () => setIsListening(false);
+      recognitionRef.current.onend = () => setIsListening(false);
+    }
+    setIsListening(true);
+    recognitionRef.current.start();
+  };
+
   // Handle search
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -193,6 +224,30 @@ const LandingPage = () => {
 
     return productsToSort;
   }, [products, priceSort, ratingSort]);
+
+  useEffect(() => {
+    let timeout;
+    const currentWord = words[wordIdx];
+    if (typing) {
+      if (displayed.length < currentWord.length) {
+        timeout = setTimeout(() => {
+          setDisplayed(currentWord.slice(0, displayed.length + 1));
+        }, 120);
+      } else {
+        timeout = setTimeout(() => setTyping(false), 1200);
+      }
+    } else {
+      if (displayed.length > 0) {
+        timeout = setTimeout(() => {
+          setDisplayed(currentWord.slice(0, displayed.length - 1));
+        }, 70);
+      } else {
+        setTyping(true);
+        setWordIdx((wordIdx + 1) % words.length);
+      }
+    }
+    return () => clearTimeout(timeout);
+  }, [displayed, typing, wordIdx]);
 
   return (
     <>
@@ -274,9 +329,12 @@ const LandingPage = () => {
             <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-8 md:p-12 max-w-4xl w-full text-center">
               {/* Hero Content */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Find what you're looking for{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-                  instantly
+                Find products fast with visual{' '}
+                <span
+                  className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 min-w-[80px]"
+                >
+                  {displayed}
+                  {displayed.length === words[wordIdx].length && '...'}
                 </span>
               </h1>
 
@@ -382,6 +440,15 @@ const LandingPage = () => {
                       >
                         <FaCamera className="h-5 w-5" />
                       </button>
+                      <button
+                        type="button"
+                        onClick={handleVoiceSearch}
+                        className={`ml-2 p-2 rounded-full ${isListening ? 'bg-green-500 text-white' : 'text-gray-400 hover:text-purple-400 hover:bg-purple-500/20'} transition-colors`}
+                        aria-label="Voice search"
+                        title="Voice search"
+                      >
+                        <FaMicrophone className="h-5 w-5" />
+                      </button>
                     </div>
                     <button
                       type="submit"
@@ -449,34 +516,37 @@ const LandingPage = () => {
 
               <div className="grid md:grid-cols-3 gap-8">
                 {/* Feature 1 */}
-                <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105">
-                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 shadow-xl hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 hover:bg-purple-500/10 group relative overflow-hidden">
+                  <div className="absolute -inset-1 bg-gradient-to-br from-purple-500/30 to-pink-400/10 blur-2xl opacity-40 pointer-events-none z-0" />
+                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto z-10 relative">
                     <FaBolt className="text-purple-400 h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-4 text-center">Lightning Fast</h3>
-                  <p className="text-gray-300 text-center">
+                  <h3 className="text-xl font-semibold text-white mb-4 text-center z-10 relative">Lightning Fast</h3>
+                  <p className="text-gray-300 text-center z-10 relative">
                     Get instant search results across all your documents with our optimized search engine.
                   </p>
                 </div>
 
                 {/* Feature 2 */}
-                <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105">
-                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 shadow-xl hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 hover:bg-purple-500/10 group relative overflow-hidden">
+                  <div className="absolute -inset-1 bg-gradient-to-br from-purple-500/30 to-pink-400/10 blur-2xl opacity-40 pointer-events-none z-0" />
+                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto z-10 relative">
                     <FaBrain className="text-purple-400 h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-4 text-center">AI-Powered</h3>
-                  <p className="text-gray-300 text-center">
+                  <h3 className="text-xl font-semibold text-white mb-4 text-center z-10 relative">AI-Powered</h3>
+                  <p className="text-gray-300 text-center z-10 relative">
                     Our AI understands document context and delivers more relevant search results.
                   </p>
                 </div>
 
                 {/* Feature 3 */}
-                <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 transition-all duration-300 hover:scale-105">
-                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto">
+                <div className="bg-black/30 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 shadow-xl hover:shadow-purple-500/40 transition-all duration-300 hover:scale-105 hover:bg-purple-500/10 group relative overflow-hidden">
+                  <div className="absolute -inset-1 bg-gradient-to-br from-purple-500/30 to-pink-400/10 blur-2xl opacity-40 pointer-events-none z-0" />
+                  <div className="w-16 h-16 bg-purple-600/20 rounded-xl flex items-center justify-center mb-6 mx-auto z-10 relative">
                     <FaLock className="text-purple-400 h-8 w-8" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-4 text-center">Secure & Private</h3>
-                  <p className="text-gray-300 text-center">
+                  <h3 className="text-xl font-semibold text-white mb-4 text-center z-10 relative">Secure & Private</h3>
+                  <p className="text-gray-300 text-center z-10 relative">
                     Your documents are encrypted and your searches are private. You own your data.
                   </p>
                 </div>

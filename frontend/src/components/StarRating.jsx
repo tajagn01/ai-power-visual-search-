@@ -2,7 +2,7 @@ import React from 'react';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 
 // Simple star rating component (can be in its own file)
-const StarRating = ({ rating }) => {
+const StarRating = ({ rating, className = "w-5 h-5" }) => {
   const numericRating = parseFloat(rating);
   if (isNaN(numericRating)) return null;
 
@@ -11,11 +11,11 @@ const StarRating = ({ rating }) => {
 
   for (let i = 1; i <= 5; i++) {
     if (i <= roundedRating) {
-      starElements.push(<FaStar key={i} className="w-5 h-5 text-yellow-400" />);
+      starElements.push(<FaStar key={i} className={`${className} text-yellow-400`} />);
     } else if (i - 0.5 === roundedRating) {
-      starElements.push(<FaStarHalfAlt key={i} className="w-5 h-5 text-yellow-400" />);
+      starElements.push(<FaStarHalfAlt key={i} className={`${className} text-yellow-400`} />);
     } else {
-      starElements.push(<FaRegStar key={i} className="w-5 h-5 text-gray-300" />);
+      starElements.push(<FaRegStar key={i} className={`${className} text-gray-300`} />);
     }
   }
 
