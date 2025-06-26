@@ -165,10 +165,6 @@ const LandingPage = () => {
   // Handle search
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!isSignedIn) {
-      setShowAuthModal(true);
-      return;
-    }
     if (!searchQuery.trim() && !isImageUploaded) return;
 
     setLoading(true);

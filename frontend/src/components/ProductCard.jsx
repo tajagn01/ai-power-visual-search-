@@ -31,7 +31,7 @@ const ProductCard = ({ product }) => {
       {/* Image Section */}
       <div className="relative w-full aspect-[3/4] bg-gray-900 overflow-hidden">
         <img
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain bg-white"
           src={thumbnail}
           alt={title}
           loading="lazy"
