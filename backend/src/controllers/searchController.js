@@ -5,14 +5,13 @@ const fs = require('fs')
 const path = require('path')
 const clarifaiService = require('../services/clarifaiService')
 
-// Text search controller
+// Search products from both Amazon and Product Search APIs
 const searchByText = async (req, res) => {
   const { q: query, page = 1, limit = 20 } = req.query
 
   logger.info('text_search: ' + JSON.stringify({ query, page: parseInt(page), limit: parseInt(limit), ip: req.ip }))
 
   try {
-    // Validate query
     if (!query || query.trim().length === 0) {
       return res.status(400).json({
         success: false,
@@ -20,32 +19,40 @@ const searchByText = async (req, res) => {
       })
     }
 
-    const country = 'IN'
-    let amazonProducts = [];
+    const country = 'US'
+    let amazonProducts = []
+    let productSearchProducts = []
 
     try {
-      amazonProducts = await rapidApiService.searchAmazon(query.trim(), country, parseInt(page));
+      amazonProducts = await rapidApiService.searchAmazon(query.trim(), country, parseInt(page), parseInt(limit))
     } catch (error) {
-      logger.error(`Error fetching Amazon products: ${error.message}`);
-      amazonProducts = [];
+      logger.error(`Error fetching Amazon products: ${error.message}`)
+      amazonProducts = []
     }
 
-    logger.info(`[SEARCH] query="${query}" | Amazon=${amazonProducts.length}`);
+    try {
+      productSearchProducts = await rapidApiService.searchProductSearchAPI(query.trim(), country.toLowerCase(), 'en', parseInt(page), parseInt(limit))
+    } catch (error) {
+      logger.error(`Error fetching ProductSearch API products: ${error.message}`)
+      productSearchProducts = []
+    }
+
+    logger.info(`[SEARCH] query="${query}" | Amazon=${amazonProducts.length} | ProductSearchAPI=${productSearchProducts.length}`)
 
     res.json({
       success: true,
       data: {
         amazon: amazonProducts,
+        productSearch: productSearchProducts,
         query: query.trim(),
         page: parseInt(page),
         limit: parseInt(limit),
-        total: amazonProducts.length
+        total: amazonProducts.length + productSearchProducts.length
       }
     })
-
   } catch (error) {
-    logger.error(`[ERROR] text_search: query="${query}" | ${error.message}`);
-    throw error
+    logger.error(`[ERROR] text_search: query="${query}" | ${error.message}`)
+    res.status(500).json({ success: false, error: error.message })
   }
 }
 

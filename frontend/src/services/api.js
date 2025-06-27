@@ -24,7 +24,7 @@ export const searchByText = async (query, page = 1) => {
     if (response.data.success) {
       return {
         amazon: response.data.data.amazon || [],
-        newApi: response.data.data.newApi || []
+        productSearch: response.data.data.productSearch || []
       }
     }
     throw new Error(response.data.error || 'Search failed')
@@ -34,7 +34,7 @@ export const searchByText = async (query, page = 1) => {
       console.warn('Backend not available, using mock data')
       return {
         amazon: generateMockProducts(query, page),
-        newApi: generateMockProducts(query, page)
+        productSearch: generateMockProducts(query, page)
       }
     }
     throw new Error(error.response?.data?.error || error.message || 'Failed to search products')
@@ -54,7 +54,7 @@ export const searchByImage = async (file) => {
     if (response.data.success) {
       return {
         amazon: response.data.data.amazon || [],
-        newApi: response.data.data.newApi || []
+        productSearch: response.data.data.productSearch || []
       }
     }
     throw new Error(response.data.error || 'Image search failed')
@@ -64,7 +64,7 @@ export const searchByImage = async (file) => {
       console.warn('Backend not available, using mock data')
       return {
         amazon: generateMockProducts('image search', 1),
-        newApi: []
+        productSearch: []
       }
     }
     throw new Error(error.response?.data?.error || error.message || 'Image upload failed - try again')
@@ -122,8 +122,8 @@ const PLACEHOLDER_IMAGE = 'https://placehold.co/300x200?text=No+Image';
 
 export const fetchCategoryImage = async (keyword) => {
   try {
-    const { amazon, newApi } = await searchByText(keyword, 1);
-    const product = (amazon && amazon[0]) || (newApi && newApi[0]) || null;
+    const { amazon, productSearch } = await searchByText(keyword, 1);
+    const product = (amazon && amazon[0]) || (productSearch && productSearch[0]) || null;
     if (product && (product.image || product.thumbnail)) {
       return {
         image: product.image || product.thumbnail,
