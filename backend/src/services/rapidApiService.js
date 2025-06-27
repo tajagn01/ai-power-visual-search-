@@ -135,7 +135,7 @@ async function searchProducts(query, page = 1, limit = 10, country = 'us', langu
       return_filters: 'false'
     },
     headers: {
-      'x-rapidapi-key': 'f92dee0045msh9b5c8fac0f8d660p1a15cbjsne98756e48931',
+      'x-rapidapi-key': '4c80a7a336msh752148e8e2bfc52p1eeab5jsn04052b2b60e6',
       'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com'
     }
   };

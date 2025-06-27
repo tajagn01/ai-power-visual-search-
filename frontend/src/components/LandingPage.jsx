@@ -9,7 +9,6 @@ import FilterControls from './FilterControls';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser, useClerk } from '@clerk/clerk-react';
 import MouseFollower from './MouseFollower';
 import { useNavigate } from 'react-router-dom';
-import { fetchCategoryImage } from '../services/api';
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,20 +64,6 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const categoryKeywords = {
-    pickUp: ['laptop', 'macbook', 'hp laptop', 'apple macbook'],
-    keepShopping: [
-      { keyword: "men's wrist watch", label: "Men's wrist watches" },
-      { keyword: "men's running shoes", label: "Men's running shoes" },
-      { keyword: 'pc headset', label: 'PC headsets' },
-      { keyword: 'smart watch', label: 'Smart watches' },
-    ],
-    deals: ['sneakers', 'adidas shoes', 'blue shoes', 'running shoes'],
-  };
-
-  const [categoryImages, setCategoryImages] = useState({ pickUp: [], keepShopping: [], deals: [] });
-  const [categoryLoading, setCategoryLoading] = useState(true);
 
   // Vanta.js initialization
   useEffect(() => {
@@ -384,22 +369,6 @@ const LandingPage = () => {
     setSelectedProducts([]); // Clear selection when toggling
     setShowComparison(false); // Always close modal when toggling mode
   };
-
-  useEffect(() => {
-    let isMounted = true;
-    async function loadImages() {
-      setCategoryLoading(true);
-      const pickUp = await Promise.all(categoryKeywords.pickUp.map(k => fetchCategoryImage(k)));
-      const keepShopping = await Promise.all(categoryKeywords.keepShopping.map(k => fetchCategoryImage(k.keyword)));
-      const deals = await Promise.all(categoryKeywords.deals.map(k => fetchCategoryImage(k)));
-      if (isMounted) {
-        setCategoryImages({ pickUp, keepShopping, deals });
-        setCategoryLoading(false);
-      }
-    }
-    loadImages();
-    return () => { isMounted = false; };
-  }, []);
 
   return (
     <>
