@@ -7,10 +7,14 @@ Node.js/Express backend with Python microservice for AI-powered product, image, 
 - Secure file upload (image search)
 - CORS support for frontend integration (with allowed origins)
 - Logging and error handling
-- Integrates with RapidAPI (Amazon, Flipkart, etc.) and Python AI service
+- Integrates with RapidAPI (Amazon, Product Search API)
 - **Amazon results limited to 10 per search**
+- **Clarifai-powered image search:** Detects objects in images and uses the most likely keyword for product search
+- **INR price conversion:** Amazon (USD) prices are converted to INR for display
+- **Category section:** Supports category-based search from frontend
+- **Combined search:** Returns results from both Amazon and Product Search APIs
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 - Node.js + Express
 - Python 3 (microservice)
 - Axios (API calls)
@@ -48,15 +52,16 @@ npm run dev
 ```
 
 ## 🔌 API Endpoints
-- `GET /api/search?q=keyword` — Text search (Amazon limited to 10 results)
-- `POST /api/search/image` — Image search (multipart/form-data)
+- `GET /api/search?q=keyword` — Text search (Amazon + Product Search API)
+- `POST /api/search/image` — Image search (Clarifai + product search)
 - `GET /health` — Health check
 
-## 🐛 Troubleshooting
+## 🐞 Troubleshooting
 - **CORS errors:** Ensure allowed origins in CORS config.
 - **RapidAPI errors:** Check API key and quota.
 - **Python errors:** Ensure Python is installed and dependencies are met.
 - **File upload issues:** Check file size/type and uploads directory permissions.
+- **No products:** Check API quota, keys, and backend logs.
 
 ## 📄 License
 MIT License

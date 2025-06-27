@@ -5,12 +5,15 @@ A modern, responsive React app for searching products by text, image, or voice. 
 ## ✨ Features
 - Text, image, and **voice search** (microphone button)
 - Animated hero heading with typewriter and gradient effect
-- Responsive 3-column mobile grid with improved card design
-- Product cards with images, prices, ratings, and source-aware buy buttons
+- **Category section:** 16 clickable categories with glassmorphism and hover effects
+- Responsive grid with improved card design
+- Product cards with images, INR prices (converted from USD for Amazon), ratings, and platform badge
+- Source-aware buy buttons (Amazon, Flipkart, etc.)
 - Enhanced feature cards with glassmorphism and purple glow
 - Loading states, error handling, and mobile-first design
+- **Recommended search:** Quick search suggestions from product data
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 - React 18 + Vite
 - Tailwind CSS (with line-clamp plugin)
 - Axios (HTTP client)
@@ -50,11 +53,12 @@ frontend/
 npm test
 ```
 
-## 🐛 Troubleshooting
+## 🐞 Troubleshooting
 - **CORS errors:** Make sure your backend allows requests from your frontend URL.
 - **No results:** Check browser console for errors and verify backend/API is running.
 - **Image upload issues:** Check file size/type and browser support.
 - **Voice search not working:** Use Chrome or Edge, and allow microphone access.
+- **INR price not showing:** Make sure backend and frontend are up to date.
 
 ## 📄 License
 MIT License

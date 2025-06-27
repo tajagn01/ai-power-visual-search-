@@ -5,18 +5,29 @@ A full-stack app for intelligent product search using text, image, or voice. Mod
 ## 🚀 Features
 - Text, image, and voice search
 - Animated hero heading with typewriter and gradient
-- Responsive 3-column mobile grid
-- Product cards with source-aware buy buttons
-- Enhanced feature cards with glassmorphism
+- **Category section:** 16 clickable categories with glassmorphism and hover effects
+- Responsive grid and product cards
+- INR price conversion (Amazon USD → INR)
+- Platform badge (Amazon, Flipkart, etc.)
+- Combined product search (Amazon + Product Search API)
+- Clarifai-powered image search (detects best keyword)
+- Recommended search suggestions
 - Backend CORS for secure integration
-- Amazon results limited to 10 per search
 
 ## 📁 Project Structure
 ```
-ai/
+notes/
 ├── frontend/      # React app
 ├── backend/       # Node.js API + Python microservice
 ```
+
+## ⚡ Project Flow
+1. **User searches by text, image, or voice** in the frontend.
+2. **Image search:** Backend uses Clarifai to detect the most likely object, then searches products using that keyword.
+3. **Product search:** Backend queries both Amazon and Product Search APIs, combines results, and converts Amazon prices to INR.
+4. **Frontend displays:**
+   - Products with INR price, platform badge, and buy button
+   - Category section and recommended searches
 
 ## 🛠️ Quick Start
 
@@ -28,7 +39,7 @@ ai/
 
 ### 1. Install Dependencies
 ```bash
-cd ai/frontend && npm install
+cd frontend && npm install
 cd ../backend && npm install
 cd python-service && pip install -r requirements.txt
 ```
@@ -47,20 +58,22 @@ cd python-service && pip install -r requirements.txt
   ```
 
 ## 🔌 API Endpoints
-- `GET /api/search?q=keyword` — Text search (Amazon limited to 10)
-- `POST /api/search/image` — Image search
+- `GET /api/search?q=keyword` — Text search (Amazon + Product Search API)
+- `POST /api/search/image` — Image search (Clarifai + product search)
 - `GET /health` — Health check
 
 ## 🎯 Usage
-- Enter a keyword or upload an image to search for products.
-- Results are fetched from Amazon and a secondary API via RapidAPI.
+- Enter a keyword, upload an image, or use voice to search for products.
+- Click a category card for quick search.
+- Results are fetched from Amazon and Product Search API, with INR price conversion and platform badge.
 
-## 🐛 Troubleshooting
+## 🐞 Troubleshooting
 - **CORS errors:** Check backend CORS config.
 - **No results:** Check backend logs and API keys.
 - **Voice/image search not working:** Use supported browsers and allow permissions.
+- **INR price not showing:** Make sure backend and frontend are up to date.
 
-## 🔧 Development
+## 🛠️ Development
 - **Frontend:**
   - `npm run dev` — Start dev server
   - `npm run build` — Build for production
@@ -76,4 +89,4 @@ cd python-service && pip install -r requirements.txt
 MIT License
 
 ---
-For help, see the frontend/backend READMEs or open an issue. 
+For more, see the frontend/backend READMEs or open an issue. 
