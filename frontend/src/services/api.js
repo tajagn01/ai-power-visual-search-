@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// Use environment variable for API base URL, fallback to current host for cross-device compatibility
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "https://ai-power-visual-search.onrender.com/api";
+// Use the provided backend URL for all API requests
+const apiBaseUrl = 'https://ai-power-visual-search.onrender.com/api';
 
 const api = axios.create({
   baseURL: apiBaseUrl,
@@ -118,11 +118,11 @@ const generateMockProducts = (query, page) => {
   return products
 }
 
-// Fetch the first product image and product URL for a given keyword
+const PLACEHOLDER_IMAGE = 'https://placehold.co/300x200?text=No+Image';
+
 export const fetchCategoryImage = async (keyword) => {
   try {
     const { amazon, newApi } = await searchByText(keyword, 1);
-    // Prefer Amazon, fallback to newApi, fallback to null
     const product = (amazon && amazon[0]) || (newApi && newApi[0]) || null;
     if (product && (product.image || product.thumbnail)) {
       return {
@@ -131,9 +131,11 @@ export const fetchCategoryImage = async (keyword) => {
         title: product.title || keyword
       };
     }
-    return { image: null, url: '#', title: keyword };
+    // No product found, return placeholder
+    return { image: PLACEHOLDER_IMAGE, url: '#', title: keyword };
   } catch (error) {
     console.error('Category image fetch error:', error);
-    return { image: null, url: '#', title: keyword };
+    // On error, return placeholder
+    return { image: PLACEHOLDER_IMAGE, url: '#', title: keyword };
   }
 }; 
