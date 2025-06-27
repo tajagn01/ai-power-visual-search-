@@ -103,6 +103,7 @@ const LandingPage = () => {
       lineOpacity: 0.4,
       pointSize: 3,
       pointOpacity: 0.8,
+      vertexColors: false,
     });
 
     return () => {
@@ -294,7 +295,7 @@ const LandingPage = () => {
     if (products.length === 0) return [];
     
     const commonWords = ['for', 'with', 'and', 'the', 'in', 'a', 'of', 'to'];
-    const titleWords = products.flatMap(p => p.title.toLowerCase().split(/\s+/));
+    const titleWords = products.flatMap(p => (p.title ? p.title.toLowerCase() : '').split(/\s+/));
     
     const wordCounts = titleWords.reduce((acc, word) => {
       if (word.length > 3 && !commonWords.includes(word) && isNaN(word)) {
@@ -790,76 +791,6 @@ const LandingPage = () => {
                     </div>
                   )}
                 </>
-              )}
-            </div>
-          </section>
-
-          {/* Category Section */}
-          <section id="category-section" className="py-16 px-6">
-            <div className="container mx-auto max-w-6xl">
-              <div className="text-center mb-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Shop by Category</h2>
-                <p className="text-lg text-gray-300 max-w-2xl mx-auto">Pick up where you left off, keep shopping, or discover deals related to your interests.</p>
-              </div>
-              {categoryLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <span className="text-purple-300 text-lg animate-pulse">Loading categories...</span>
-                </div>
-              ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Pick up where you left off */}
-                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg flex flex-col">
-                  <h3 className="text-xl font-semibold text-white mb-4">Pick up where you left off</h3>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {categoryImages.pickUp.map((item, i) => (
-                      item && item.image ? (
-                        <a key={i} href={item.url} target="_blank" rel="noopener noreferrer">
-                          <img src={item.image} alt={item.title} className="rounded-lg object-cover h-24 w-full bg-gray-800" />
-                        </a>
-                      ) : (
-                        <img key={i} src={'https://via.placeholder.com/120x96?text=No+Image'} alt={categoryKeywords.pickUp[i]} className="rounded-lg object-cover h-24 w-full bg-gray-800" />
-                      )
-                    ))}
-                  </div>
-                  <a href="#" className="text-purple-400 hover:underline text-sm mt-auto">See more</a>
-                </div>
-                {/* Keep shopping for */}
-                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg flex flex-col">
-                  <h3 className="text-xl font-semibold text-white mb-4">Keep shopping for</h3>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {categoryKeywords.keepShopping.map((cat, i) => (
-                      categoryImages.keepShopping[i] && categoryImages.keepShopping[i].image ? (
-                        <a key={cat.keyword} href={categoryImages.keepShopping[i].url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center">
-                          <img src={categoryImages.keepShopping[i].image} alt={cat.label} className="rounded-lg object-cover h-20 w-20 mb-2 bg-gray-800" />
-                          <span className="text-gray-200 text-sm text-center">{cat.label}</span>
-                        </a>
-                      ) : (
-                        <div key={cat.keyword} className="flex flex-col items-center">
-                          <img src={'https://via.placeholder.com/80x80?text=No+Image'} alt={cat.label} className="rounded-lg object-cover h-20 w-20 mb-2 bg-gray-800" />
-                          <span className="text-gray-200 text-sm text-center">{cat.label}</span>
-                        </div>
-                      )
-                    ))}
-                  </div>
-                  <a href="#" className="text-purple-400 hover:underline text-sm mt-auto">View your browsing history</a>
-                </div>
-                {/* Deals related to items you've saved */}
-                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg flex flex-col">
-                  <h3 className="text-xl font-semibold text-white mb-4">Deals related to items you've saved</h3>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {categoryImages.deals.map((item, i) => (
-                      item && item.image ? (
-                        <a key={i} href={item.url} target="_blank" rel="noopener noreferrer">
-                          <img src={item.image} alt={categoryKeywords.deals[i]} className="rounded-lg object-cover h-20 w-full bg-gray-800" />
-                        </a>
-                      ) : (
-                        <img key={i} src={'https://via.placeholder.com/80x80?text=No+Image'} alt={categoryKeywords.deals[i]} className="rounded-lg object-cover h-20 w-full bg-gray-800" />
-                      )
-                    ))}
-                  </div>
-                  <a href="#" className="text-purple-400 hover:underline text-sm mt-auto">See all deals</a>
-                </div>
-              </div>
               )}
             </div>
           </section>
