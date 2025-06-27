@@ -22,7 +22,6 @@ const searchByText = async (req, res) => {
 
     const country = 'IN'
     let amazonProducts = [];
-    let productSearchProducts = [];
 
     try {
       amazonProducts = await rapidApiService.searchAmazon(query.trim(), country, parseInt(page));
@@ -31,24 +30,16 @@ const searchByText = async (req, res) => {
       amazonProducts = [];
     }
 
-    try {
-      productSearchProducts = await rapidApiService.searchProductSearchAPI(query.trim(), country.toLowerCase(), 'en', parseInt(page), parseInt(limit));
-    } catch (error) {
-      logger.error(`Error fetching ProductSearch API products: ${error.message}`);
-      productSearchProducts = [];
-    }
-
-    logger.info(`[SEARCH] query="${query}" | Amazon=${amazonProducts.length} | ProductSearchAPI=${productSearchProducts.length}`);
+    logger.info(`[SEARCH] query="${query}" | Amazon=${amazonProducts.length}`);
 
     res.json({
       success: true,
       data: {
         amazon: amazonProducts,
-        productSearch: productSearchProducts,
         query: query.trim(),
         page: parseInt(page),
         limit: parseInt(limit),
-        total: amazonProducts.length + productSearchProducts.length
+        total: amazonProducts.length
       }
     })
 

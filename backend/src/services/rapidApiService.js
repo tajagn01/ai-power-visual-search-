@@ -17,7 +17,7 @@ const productSearchApiClient = axios.create({
   baseURL: 'https://real-time-product-search.p.rapidapi.com',
   timeout: 30000,
   headers: {
-    'x-rapidapi-key': 'efd9eaafb5msh52a10f7af6ec05bp1adab2jsna9ba027f2b9d',
+    'x-rapidapi-key': '2f6604f722msh285ef55b591c14ep13183ejsn3fb1adb25ae7',
     'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com',
     'Content-Type': 'application/json',
   },
