@@ -1,12 +1,12 @@
 const axios = require('axios');
 const logger = require('../middleware/logger');
 
-// Configure a single axios instance for RapidAPI
+// Configure a single axios instance for RapidAPI (Amazon)
 const rapidApiClient = axios.create({
   baseURL: 'https://real-time-amazon-data.p.rapidapi.com',
   timeout: 30000,
   headers: {
-    'X-RapidAPI-Key': '7a2d1b3ec9msh247376052bb8cbdp1033fajsn146feaeca9cf',
+    'X-RapidAPI-Key': 'efd9eaafb5msh52a10f7af6ec05bp1adab2jsna9ba027f2b9d',
     'X-RapidAPI-Host': 'real-time-amazon-data.p.rapidapi.com',
     'Content-Type': 'application/json'
   }
