@@ -9,6 +9,7 @@ import FilterControls from './FilterControls';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser, useClerk } from '@clerk/clerk-react';
 import MouseFollower from './MouseFollower';
 import { useNavigate } from 'react-router-dom';
+import { fetchCategoryImage } from '../services/api';
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,6 +65,20 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const categoryKeywords = {
+    pickUp: ['laptop', 'macbook', 'hp laptop', 'apple macbook'],
+    keepShopping: [
+      { keyword: "men's wrist watch", label: "Men's wrist watches" },
+      { keyword: "men's running shoes", label: "Men's running shoes" },
+      { keyword: 'pc headset', label: 'PC headsets' },
+      { keyword: 'smart watch', label: 'Smart watches' },
+    ],
+    deals: ['sneakers', 'adidas shoes', 'blue shoes', 'running shoes'],
+  };
+
+  const [categoryImages, setCategoryImages] = useState({ pickUp: [], keepShopping: [], deals: [] });
+  const [categoryLoading, setCategoryLoading] = useState(true);
 
   // Vanta.js initialization
   useEffect(() => {
@@ -369,6 +384,22 @@ const LandingPage = () => {
     setSelectedProducts([]); // Clear selection when toggling
     setShowComparison(false); // Always close modal when toggling mode
   };
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadImages() {
+      setCategoryLoading(true);
+      const pickUp = await Promise.all(categoryKeywords.pickUp.map(k => fetchCategoryImage(k)));
+      const keepShopping = await Promise.all(categoryKeywords.keepShopping.map(k => fetchCategoryImage(k.keyword)));
+      const deals = await Promise.all(categoryKeywords.deals.map(k => fetchCategoryImage(k)));
+      if (isMounted) {
+        setCategoryImages({ pickUp, keepShopping, deals });
+        setCategoryLoading(false);
+      }
+    }
+    loadImages();
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <>
@@ -759,6 +790,76 @@ const LandingPage = () => {
                     </div>
                   )}
                 </>
+              )}
+            </div>
+          </section>
+
+          {/* Category Section */}
+          <section id="category-section" className="py-16 px-6">
+            <div className="container mx-auto max-w-6xl">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Shop by Category</h2>
+                <p className="text-lg text-gray-300 max-w-2xl mx-auto">Pick up where you left off, keep shopping, or discover deals related to your interests.</p>
+              </div>
+              {categoryLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <span className="text-purple-300 text-lg animate-pulse">Loading categories...</span>
+                </div>
+              ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Pick up where you left off */}
+                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg flex flex-col">
+                  <h3 className="text-xl font-semibold text-white mb-4">Pick up where you left off</h3>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {categoryImages.pickUp.map((item, i) => (
+                      item && item.image ? (
+                        <a key={i} href={item.url} target="_blank" rel="noopener noreferrer">
+                          <img src={item.image} alt={item.title} className="rounded-lg object-cover h-24 w-full bg-gray-800" />
+                        </a>
+                      ) : (
+                        <img key={i} src={'https://via.placeholder.com/120x96?text=No+Image'} alt={categoryKeywords.pickUp[i]} className="rounded-lg object-cover h-24 w-full bg-gray-800" />
+                      )
+                    ))}
+                  </div>
+                  <a href="#" className="text-purple-400 hover:underline text-sm mt-auto">See more</a>
+                </div>
+                {/* Keep shopping for */}
+                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg flex flex-col">
+                  <h3 className="text-xl font-semibold text-white mb-4">Keep shopping for</h3>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {categoryKeywords.keepShopping.map((cat, i) => (
+                      categoryImages.keepShopping[i] && categoryImages.keepShopping[i].image ? (
+                        <a key={cat.keyword} href={categoryImages.keepShopping[i].url} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center">
+                          <img src={categoryImages.keepShopping[i].image} alt={cat.label} className="rounded-lg object-cover h-20 w-20 mb-2 bg-gray-800" />
+                          <span className="text-gray-200 text-sm text-center">{cat.label}</span>
+                        </a>
+                      ) : (
+                        <div key={cat.keyword} className="flex flex-col items-center">
+                          <img src={'https://via.placeholder.com/80x80?text=No+Image'} alt={cat.label} className="rounded-lg object-cover h-20 w-20 mb-2 bg-gray-800" />
+                          <span className="text-gray-200 text-sm text-center">{cat.label}</span>
+                        </div>
+                      )
+                    ))}
+                  </div>
+                  <a href="#" className="text-purple-400 hover:underline text-sm mt-auto">View your browsing history</a>
+                </div>
+                {/* Deals related to items you've saved */}
+                <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-lg flex flex-col">
+                  <h3 className="text-xl font-semibold text-white mb-4">Deals related to items you've saved</h3>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {categoryImages.deals.map((item, i) => (
+                      item && item.image ? (
+                        <a key={i} href={item.url} target="_blank" rel="noopener noreferrer">
+                          <img src={item.image} alt={categoryKeywords.deals[i]} className="rounded-lg object-cover h-20 w-full bg-gray-800" />
+                        </a>
+                      ) : (
+                        <img key={i} src={'https://via.placeholder.com/80x80?text=No+Image'} alt={categoryKeywords.deals[i]} className="rounded-lg object-cover h-20 w-full bg-gray-800" />
+                      )
+                    ))}
+                  </div>
+                  <a href="#" className="text-purple-400 hover:underline text-sm mt-auto">See all deals</a>
+                </div>
+              </div>
               )}
             </div>
           </section>

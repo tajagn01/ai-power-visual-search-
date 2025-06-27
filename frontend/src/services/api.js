@@ -116,4 +116,24 @@ const generateMockProducts = (query, page) => {
   }
   
   return products
-} 
+}
+
+// Fetch the first product image and product URL for a given keyword
+export const fetchCategoryImage = async (keyword) => {
+  try {
+    const { amazon, newApi } = await searchByText(keyword, 1);
+    // Prefer Amazon, fallback to newApi, fallback to null
+    const product = (amazon && amazon[0]) || (newApi && newApi[0]) || null;
+    if (product && (product.image || product.thumbnail)) {
+      return {
+        image: product.image || product.thumbnail,
+        url: product.amazonUrl || product.url || product.product_url || '#',
+        title: product.title || keyword
+      };
+    }
+    return { image: null, url: '#', title: keyword };
+  } catch (error) {
+    console.error('Category image fetch error:', error);
+    return { image: null, url: '#', title: keyword };
+  }
+}; 
