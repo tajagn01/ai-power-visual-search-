@@ -42,7 +42,7 @@ async function searchAmazon(query, country = 'US', page = 1, limit = 20) {
       timeout: 30000,
     });
     logger.info('Amazon API raw response: ' + JSON.stringify(response.data));
-    const products = transformProducts(response.data.products || []);
+    const products = transformProducts(response.data.data?.products || []);
     return products;
   } catch (error) {
     logger.error('Amazon API error: ' + JSON.stringify({
@@ -70,7 +70,7 @@ async function searchProductSearchAPI(query, country = 'us', language = 'en', pa
         return_filters: 'false',
       },
       headers: {
-        'x-rapidapi-key': '2f6604f722msh285ef55b591c14ep13183ejsn3fb1adb25ae7',
+        'x-rapidapi-key': 'f92dee0045msh9b5c8fac0f8d660p1a15cbjsne98756e48931',
         'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com',
       },
       timeout: 30000,
