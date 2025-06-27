@@ -21,24 +21,34 @@ const searchByText = async (req, res) => {
     }
 
     const country = 'IN'
+    let amazonProducts = [];
+    let productSearchProducts = [];
 
-    // Only use the new API for product search
-    const newApiProducts = await rapidApiService.searchNewApiProducts(query.trim(), parseInt(page), parseInt(limit), country.toLowerCase())
-      .catch(error => {
-        logger.error(`Error fetching New API products: ${error.message}`);
-        return []; // Return empty array on error
-      });
+    try {
+      amazonProducts = await rapidApiService.searchAmazon(query.trim(), country, parseInt(page));
+    } catch (error) {
+      logger.error(`Error fetching Amazon products: ${error.message}`);
+      amazonProducts = [];
+    }
 
-    logger.info(`[SEARCH] query="${query}" | NewAPI=${newApiProducts.length}`);
+    try {
+      productSearchProducts = await rapidApiService.searchProductSearchAPI(query.trim(), country.toLowerCase(), 'en', parseInt(page), parseInt(limit));
+    } catch (error) {
+      logger.error(`Error fetching ProductSearch API products: ${error.message}`);
+      productSearchProducts = [];
+    }
+
+    logger.info(`[SEARCH] query="${query}" | Amazon=${amazonProducts.length} | ProductSearchAPI=${productSearchProducts.length}`);
 
     res.json({
       success: true,
       data: {
-        products: newApiProducts,
+        amazon: amazonProducts,
+        productSearch: productSearchProducts,
         query: query.trim(),
         page: parseInt(page),
         limit: parseInt(limit),
-        total: newApiProducts.length
+        total: amazonProducts.length + productSearchProducts.length
       }
     })
 
