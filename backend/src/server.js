@@ -24,12 +24,9 @@ if (!fs.existsSync(uploadsDir)) {
 // Middleware
 app.use(helmet())
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "https://aisearch01.netlify.app"
-  ],
-  credentials: true
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }))
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }))
 app.use(express.json({ limit: '10mb' }))
