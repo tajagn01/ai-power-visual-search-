@@ -17,7 +17,7 @@ const newApiClient = axios.create({
   baseURL: 'https://real-time-product-search.p.rapidapi.com',
   timeout: 30000,
   headers: {
-    'x-rapidapi-key': 'efd9eaafb5msh52a10f7af6ec05bp1adab2jsna9ba027f2b9d',
+    'x-rapidapi-key': 'f92dee0045msh9b5c8fac0f8d660p1a15cbjsne98756e48931',
     'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com',
     'Content-Type': 'application/json'
   }
@@ -118,27 +118,40 @@ function generateMockProducts(query, page = 1, limit = 20) {
   return products;
 }
 
-// Search products by text query
-async function searchProducts(query, page = 1, limit = 20, country = 'US') {
-  logger.info('rapidapi_search_products: ' + JSON.stringify({ query, page, limit, country }));
+// Use the new API client and endpoint for all product searches
+async function searchProducts(query, page = 1, limit = 10, country = 'us', language = 'en') {
+  logger.info('rapidapi_search_products: ' + JSON.stringify({ query, page, limit, country, language }));
+  const options = {
+    method: 'GET',
+    url: 'https://real-time-product-search.p.rapidapi.com/search-light-v2',
+    params: {
+      q: query,
+      country,
+      language,
+      page: page.toString(),
+      limit: limit.toString(),
+      sort_by: 'BEST_MATCH',
+      product_condition: 'ANY',
+      return_filters: 'false'
+    },
+    headers: {
+      'x-rapidapi-key': 'f92dee0045msh9b5c8fac0f8d660p1a15cbjsne98756e48931',
+      'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com'
+    }
+  };
   try {
-    const response = await rapidApiClient.get('/search', {
-      params: { query, page, country, category: 'aps' }
-    });
-
-    const rawProducts = extractProductsFromResponse(response.data);
-    const products = transformProducts(rawProducts);
-    logger.info('rapidapi_search_success: ' + JSON.stringify({ query, resultsCount: products.length }));
-    return products;
-
+    const response = await axios.request(options);
+    logger.info('rapidapi_search_success: ' + JSON.stringify({ query, status: response.status }));
+    // Map and transform as before
+    const productContainer = response.data.data || response.data;
+    const rawProducts = productContainer?.products || productContainer?.results || productContainer?.items || [];
+    return transformNewApiProducts(rawProducts);
   } catch (error) {
     logger.error('rapidapi_search_error: ' + JSON.stringify({ query, error: error.message, status: error.response?.status, data: error.response?.data }));
-
     if (error.code === 'ENOTFOUND' || error.response?.status >= 500) {
       logger.warn('rapidapi_fallback_to_mock: ' + JSON.stringify({ query }));
       return generateMockProducts(query, page, limit);
     }
-
     throw new Error(`RapidAPI search failed: ${error.message}`);
   }
 }

@@ -201,6 +201,7 @@ const LandingPage = () => {
   // Handle search
   const handleSearch = async (e) => {
     e.preventDefault();
+    if (loading) return; // Prevent duplicate submissions
     if (!searchQuery.trim() && !isImageUploaded) return;
 
     setLoading(true);
@@ -308,6 +309,7 @@ const LandingPage = () => {
   }, [products]);
 
   const handleRecommendedSearch = (term) => {
+    if (loading) return; // Prevent triggering while loading
     setSearchQuery(term);
     // Directly submit the search form
     const searchForm = document.getElementById('search-form');
