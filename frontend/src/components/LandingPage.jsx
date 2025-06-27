@@ -372,6 +372,26 @@ const LandingPage = () => {
     setShowComparison(false); // Always close modal when toggling mode
   };
 
+  // Category keywords for the section
+  const categoryKeywords = [
+    'Shoes',
+    'Laptop',
+    'Mobile',
+    'Headphones',
+    'Smartwatch',
+    'T-shirt',
+    'Jeans',
+    'Backpack',
+    'Camera',
+    'Refrigerator',
+    'Washing Machine',
+    'Television',
+    'Microwave',
+    'Sunglasses',
+    'Makeup Kit',
+    'Air Conditioner',
+  ];
+
   return (
     <>
       <MouseFollower />
@@ -762,6 +782,28 @@ const LandingPage = () => {
                   )}
                 </>
               )}
+            </div>
+          </section>
+
+          {/* Category Section */}
+          <section id="category-section" className="py-12 px-4">
+            <div className="container mx-auto max-w-6xl">
+              <div className="bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 shadow-xl p-6 md:p-8 mb-10 transition-all duration-300">
+                <h2 className="text-xl md:text-2xl font-bold text-white mb-6">Category Section</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {categoryKeywords.map((keyword) => (
+                    <button
+                      key={keyword}
+                      onClick={() => handleRecommendedSearch(keyword)}
+                      className="group relative bg-black/30 backdrop-blur-sm rounded-lg border border-white/10 shadow-md p-3 flex items-center justify-center text-white text-base font-medium transition-all duration-300 hover:scale-105 hover:bg-purple-500/10 hover:border-purple-500/30 hover:shadow-purple-500/40 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                      style={{ minHeight: '44px' }}
+                    >
+                      <span className="z-10 relative">{keyword}</span>
+                      <span className="absolute -inset-1 bg-gradient-to-br from-purple-500/30 to-pink-400/10 blur-2xl opacity-40 pointer-events-none z-0" />
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 

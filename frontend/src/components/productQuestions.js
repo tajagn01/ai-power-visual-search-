@@ -61,7 +61,56 @@ const productQuestions = {
     "Do you prefer wood, metal, or plastic?",
     "What is your budget?",
     "Do you need storage options (drawers, shelves, etc.)?"
+  ],
+  camera: [
+    "Are you looking for a DSLR, mirrorless, or point-and-shoot?",
+    "What is your experience level? (beginner, intermediate, pro)",
+    "Do you need 4K video recording?",
+    "What is your primary use? (travel, vlogging, photography)",
+    "What is your budget?"
+  ],
+  smartwatch: [
+    "Do you need fitness and health tracking features?",
+    "Are you using Android or iPhone?",
+    "Do you want a round or square dial?",
+    "What's your battery life expectation?",
+    "Do you need calling or messaging features?"
+  ],
+  backpack: [
+    "Is it for travel, school, or office?",
+    "How much storage capacity do you need?",
+    "Do you need a waterproof bag?",
+    "What features are important? (USB port, laptop sleeve, etc.)",
+    "Do you prefer a specific color or design?"
+  ],
+  microwave: [
+    "Do you need a solo, grill, or convection microwave?",
+    "What capacity do you need? (liters)",
+    "Do you want auto-cook menus?",
+    "How often will you use it? (daily, occasionally)",
+    "What is your budget?"
+  ],
+  airConditioner: [
+    "Do you need a window or split AC?",
+    "What is your room size (in sq. ft)?",
+    "Do you need inverter technology?",
+    "What star rating for energy efficiency?",
+    "What is your budget?"
+  ],
+  makeup: [
+    "Are you looking for daily use or occasional use products?",
+    "Do you prefer natural or glam looks?",
+    "Any brand preference?",
+    "What skin type do you have? (oily, dry, combination)",
+    "What type of products are you looking for? (foundation, lipstick, etc.)"
+  ],
+  sunglasses: [
+    "Do you prefer polarized lenses?",
+    "Which frame style do you like? (aviator, wayfarer, round)",
+    "Do you need prescription sunglasses?",
+    "What is your face shape?",
+    "Do you prefer a specific brand?"
   ]
 };
 
-export default productQuestions; 
+export default productQuestions;

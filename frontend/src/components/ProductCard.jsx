@@ -24,6 +24,17 @@ function getPlatform(url, brand) {
   return brand || 'Other';
 }
 
+// Utility to convert price to INR if needed
+function convertToINR(price, platform) {
+  let num = parseFloat((price || '').toString().replace(/[^\d.]/g, ''));
+  if (isNaN(num)) return '₹--';
+  // Assume Amazon prices are in USD, others in INR
+  if (platform === 'Amazon') {
+    num = num * 83; // 1 USD = 83 INR (update as needed)
+  }
+  return '₹' + Math.round(num).toLocaleString('en-IN');
+}
+
 const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProducts }) => {
   // Handle different field names from backend
   const {
@@ -114,7 +125,7 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
         <div className="flex-grow" />
         {/* Price and Rating Row */}
         <div className="mt-2 flex flex-col items-start">
-          <p className="text-gray-200 text-base font-semibold">{formatINR(price)}</p>
+          <p className="text-gray-200 text-base font-semibold">{convertToINR(price, platform)}</p>
           {rating && (
             <div className="flex items-center mt-1">
               <StarRating rating={rating} className="w-3 h-3 md:w-4 md:h-4" />
