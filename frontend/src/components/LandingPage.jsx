@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt, FaMicrophone, FaSpinner } from 'react-icons/fa';
+import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt, FaMicrophone, FaSpinner, FaRobot } from 'react-icons/fa';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import { Popover, Transition } from '@headlessui/react';
@@ -8,6 +8,7 @@ import Loader from './Loader';
 import FilterControls from './FilterControls';
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth, useUser, useClerk } from '@clerk/clerk-react';
 import MouseFollower from './MouseFollower';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,6 +23,12 @@ const LandingPage = () => {
   const [loading, setLoading] = useState(false);
   const [priceSort, setPriceSort] = useState('default');
   const [ratingSort, setRatingSort] = useState('default');
+  const [filters, setFilters] = useState({
+    price: { min: 0, max: 100000 },
+    rating: 0,
+    brands: [],
+    stores: [],
+  });
 
   const { isSignedIn } = useAuth();
   const { user } = useUser();
@@ -49,6 +56,12 @@ const LandingPage = () => {
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [placeholderText, setPlaceholderText] = useState('');
   const [typingPlaceholder, setTypingPlaceholder] = useState(true);
+
+  const [compareMode, setCompareMode] = useState(false);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [showComparison, setShowComparison] = useState(false);
+
+  const navigate = useNavigate();
 
   // Vanta.js initialization
   useEffect(() => {
@@ -210,12 +223,33 @@ const LandingPage = () => {
     }
   };
 
-  const sortedProducts = useMemo(() => {
-    let productsToSort = [...products];
+  const availableFilters = useMemo(() => {
+    const brands = [...new Set(products.map(p => p.brand).filter(Boolean))];
+    const stores = [...new Set(products.map(p => p.source).filter(Boolean))];
+    const pricesArr = products.map(p => parseFloat(p.price?.toString().replace(/[^\d.]/g, ''))).filter(v => !isNaN(v));
+    const prices = pricesArr.length > 0 ? { min: Math.min(...pricesArr), max: Math.max(...pricesArr) } : { min: 0, max: 100000 };
+    return { brands, stores, prices };
+  }, [products]);
+
+  const filteredAndSortedProducts = useMemo(() => {
+    let productsToProcess = [...products];
+
+    // Apply filters
+    productsToProcess = productsToProcess.filter(p => {
+      const price = parseFloat(p.price?.toString().replace(/[^\d.]/g, '')) || 0;
+      const rating = parseFloat(p.rating) || 0;
+
+      if (price < filters.price.min || price > filters.price.max) return false;
+      if (rating < filters.rating) return false;
+      if (filters.brands.length > 0 && !filters.brands.includes(p.brand)) return false;
+      if (filters.stores.length > 0 && !filters.stores.includes(p.source)) return false;
+
+      return true;
+    });
 
     // Price sort
     if (priceSort !== 'default') {
-      productsToSort.sort((a, b) => {
+      productsToProcess.sort((a, b) => {
         const priceA = parseFloat(a.price?.toString().replace(/[^\d.]/g, '')) || 0;
         const priceB = parseFloat(b.price?.toString().replace(/[^\d.]/g, '')) || 0;
         return priceSort === 'asc' ? priceA - priceB : priceB - priceA;
@@ -224,15 +258,43 @@ const LandingPage = () => {
 
     // Rating sort
     if (ratingSort !== 'default') {
-      productsToSort.sort((a, b) => {
+      productsToProcess.sort((a, b) => {
         const ratingA = parseFloat(a.rating) || 0;
         const ratingB = parseFloat(b.rating) || 0;
         return ratingSort === 'desc' ? ratingB - ratingA : ratingA - ratingB;
       });
     }
 
-    return productsToSort;
-  }, [products, priceSort, ratingSort]);
+    return productsToProcess;
+  }, [products, filters, priceSort, ratingSort]);
+
+  const recommendedSearches = useMemo(() => {
+    if (products.length === 0) return [];
+    
+    const commonWords = ['for', 'with', 'and', 'the', 'in', 'a', 'of', 'to'];
+    const titleWords = products.flatMap(p => p.title.toLowerCase().split(/\s+/));
+    
+    const wordCounts = titleWords.reduce((acc, word) => {
+      if (word.length > 3 && !commonWords.includes(word) && isNaN(word)) {
+        acc[word] = (acc[word] || 0) + 1;
+      }
+      return acc;
+    }, {});
+    
+    return Object.entries(wordCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(entry => entry[0]);
+  }, [products]);
+
+  const handleRecommendedSearch = (term) => {
+    setSearchQuery(term);
+    // Directly submit the search form
+    const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+      searchForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }
+  };
 
   useEffect(() => {
     let timeout;
@@ -282,6 +344,24 @@ const LandingPage = () => {
     }
     return () => clearTimeout(timeout);
   }, [placeholderText, typingPlaceholder, placeholderIdx]);
+
+  // Open comparison modal when exactly two products are selected in compare mode
+  useEffect(() => {
+    if (compareMode && selectedProducts.length === 2) {
+      setShowComparison(true);
+    }
+  }, [selectedProducts, compareMode]);
+
+  const handleCloseComparison = () => {
+    setShowComparison(false);
+    setSelectedProducts([]);
+    setCompareMode(false); // Exit compare mode after comparison
+  };
+
+  const toggleCompareMode = () => {
+    setCompareMode((prev) => !prev);
+    setSelectedProducts([]); // Clear selection when toggling
+  };
 
   return (
     <>
@@ -353,6 +433,13 @@ const LandingPage = () => {
                     )}
                   </div>
                 </SignedIn>
+                <button
+                  className="flex items-center gap-2 bg-black/40 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all duration-300 border border-purple-500/30"
+                  onClick={() => navigate('/chat')}
+                >
+                  <FaRobot className="h-5 w-5 text-purple-300" />
+                  <span className="hidden sm:inline">Chat with AI</span>
+                </button>
               </div>
             </div>
           </div>
@@ -424,6 +511,7 @@ const LandingPage = () => {
                 {/* Search Form */}
                 <form
                   onSubmit={handleSearch}
+                  id="search-form"
                   className="max-w-2xl mx-auto relative"
                   role="search"
                   aria-label="Product search"
@@ -527,33 +615,90 @@ const LandingPage = () => {
                 <>
                   <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <h2 className="text-3xl md:text-4xl font-bold text-white">Search Results</h2>
-                    <Popover className="relative">
-                      <Popover.Button className="neon-button inline-flex items-center gap-x-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95">
-                        <FaFilter className="h-4 w-4 text-gray-300" />
-                        <span>Filter</span>
-                      </Popover.Button>
-                      <Transition
-                        enter="transition ease-out duration-200"
-                        enterFrom="opacity-0 translate-y-1"
-                        enterTo="opacity-100 translate-y-0"
-                        leave="transition ease-in duration-150"
-                        leaveFrom="opacity-100 translate-y-0"
-                        leaveTo="opacity-0 translate-y-1"
+                    <div className="flex items-center gap-4">
+                      <button
+                        className={`bg-pink-600 hover:bg-pink-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-all duration-300 text-sm ${compareMode ? 'ring-2 ring-pink-400' : ''}`}
+                        onClick={toggleCompareMode}
                       >
-                        <Popover.Panel className="absolute right-0 z-10 mt-3 w-screen max-w-xs transform">
-                          <div className="glass-card overflow-hidden rounded-xl">
-                            <FilterControls
-                              priceSort={priceSort}
-                              setPriceSort={setPriceSort}
-                              ratingSort={ratingSort}
-                              setRatingSort={setRatingSort}
-                            />
-                          </div>
-                        </Popover.Panel>
-                      </Transition>
-                    </Popover>
+                        {compareMode ? 'Cancel' : 'Compare'}
+                      </button>
+                      <Popover className="relative">
+                        <Popover.Button className="neon-button inline-flex items-center gap-x-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95">
+                          <FaFilter className="h-4 w-4 text-gray-300" />
+                          <span>Filter</span>
+                        </Popover.Button>
+                        <Transition
+                          enter="transition ease-out duration-200"
+                          enterFrom="opacity-0 translate-y-1"
+                          enterTo="opacity-100 translate-y-0"
+                          leave="transition ease-in duration-150"
+                          leaveFrom="opacity-100 translate-y-0"
+                          leaveTo="opacity-0 translate-y-1"
+                        >
+                          <Popover.Panel className="absolute right-0 z-10 mt-3 w-screen max-w-xs transform">
+                            <div className="glass-card overflow-hidden rounded-xl">
+                              <FilterControls
+                                priceSort={priceSort}
+                                setPriceSort={setPriceSort}
+                                ratingSort={ratingSort}
+                                setRatingSort={setRatingSort}
+                                filters={filters}
+                                setFilters={setFilters}
+                                availableFilters={availableFilters}
+                              />
+                            </div>
+                          </Popover.Panel>
+                        </Transition>
+                      </Popover>
+                    </div>
                   </div>
-                  <ProductGrid products={sortedProducts} />
+                  <ProductGrid
+                    products={filteredAndSortedProducts}
+                    compareMode={compareMode}
+                    selectedProducts={selectedProducts}
+                    setSelectedProducts={setSelectedProducts}
+                  />
+                  {showComparison && selectedProducts.length === 2 && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+                      <div className="bg-white rounded-xl shadow-lg p-8 max-w-3xl w-full relative">
+                        <button
+                          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl"
+                          onClick={handleCloseComparison}
+                          aria-label="Close"
+                        >
+                          &times;
+                        </button>
+                        <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">Product Comparison</h2>
+                        <div className="flex gap-8 justify-center">
+                          {selectedProducts.map((product, idx) => (
+                            <div key={product.id || idx} className="min-w-[220px] max-w-xs bg-gray-100 rounded-xl p-4 flex flex-col items-center border border-purple-500/20">
+                              <img src={product.thumbnail || 'https://picsum.photos/100/100?random=1'} alt={product.title} className="w-24 h-24 object-contain rounded mb-2 bg-white" />
+                              <div className="font-semibold text-gray-900 text-sm text-center line-clamp-2 mb-1">{product.title}</div>
+                              <div className="text-purple-700 font-bold text-lg mb-1">{product.price}</div>
+                              <div className="text-yellow-500 text-sm mb-1">Rating: {product.rating || 'N/A'}</div>
+                              <a href={product.amazonUrl || product.url || '#'} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-700 underline mt-1">View Product</a>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {recommendedSearches.length > 0 && (
+                    <div className="mt-12 text-center">
+                      <h3 className="text-xl font-semibold text-white mb-4">Recommended for you</h3>
+                      <div className="flex flex-wrap justify-center gap-3">
+                        {recommendedSearches.map(term => (
+                          <button
+                            key={term}
+                            onClick={() => handleRecommendedSearch(term)}
+                            className="bg-gray-800/60 hover:bg-purple-600/50 border border-purple-500/30 text-white font-medium py-2 px-4 rounded-full transition-all duration-300"
+                          >
+                            {term.charAt(0).toUpperCase() + term.slice(1)}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>
