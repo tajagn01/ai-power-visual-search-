@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt, FaMicrophone, FaSpinner, FaRobot } from 'react-icons/fa';
+import { FaSearch, FaCamera, FaChevronDown, FaBolt, FaBrain, FaLock, FaArrowRight, FaFilter, FaTimes, FaUser, FaSignOutAlt, FaMicrophone, FaSpinner, FaRobot, FaBars } from 'react-icons/fa';
 import NET from 'vanta/dist/vanta.net.min';
 import * as THREE from 'three';
 import { Popover, Transition } from '@headlessui/react';
@@ -62,6 +62,8 @@ const LandingPage = () => {
   const [showComparison, setShowComparison] = useState(false);
 
   const navigate = useNavigate();
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Vanta.js initialization
   useEffect(() => {
@@ -170,6 +172,11 @@ const LandingPage = () => {
       };
       recognitionRef.current.onerror = () => setIsListening(false);
       recognitionRef.current.onend = () => setIsListening(false);
+    }
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
     }
     setIsListening(true);
     recognitionRef.current.start();
@@ -345,12 +352,11 @@ const LandingPage = () => {
     return () => clearTimeout(timeout);
   }, [placeholderText, typingPlaceholder, placeholderIdx]);
 
-  // Open comparison modal when exactly two products are selected in compare mode
-  useEffect(() => {
-    if (compareMode && selectedProducts.length === 2) {
+  const handleOpenComparison = () => {
+    if (selectedProducts.length >= 2) {
       setShowComparison(true);
     }
-  }, [selectedProducts, compareMode]);
+  };
 
   const handleCloseComparison = () => {
     setShowComparison(false);
@@ -361,6 +367,7 @@ const LandingPage = () => {
   const toggleCompareMode = () => {
     setCompareMode((prev) => !prev);
     setSelectedProducts([]); // Clear selection when toggling
+    setShowComparison(false); // Always close modal when toggling mode
   };
 
   return (
@@ -386,64 +393,105 @@ const LandingPage = () => {
                 <span className="text-2xl font-bold text-white">Searchify</span>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center space-x-4">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 hover:scale-105">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <div className="relative" ref={userMenuRef}>
-                    <button
-                      className="flex items-center gap-2 bg-purple-600/30 rounded-full px-4 py-2 text-white font-semibold text-lg backdrop-blur-md border border-purple-400/40 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
-                      onClick={() => setUserMenuOpen((open) => !open)}
-                      aria-haspopup="true"
-                      aria-expanded={userMenuOpen}
-                      type="button"
-                    >
-                      Hi! {user?.firstName || user?.username || 'User'}
-                      <FaUser className="w-5 h-5 text-purple-200" />
-                    </button>
-                    {userMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg py-2 z-50 border border-purple-200/40">
-                        <button
-                          onClick={() => {
-                            openUserProfile();
-                            setUserMenuOpen(false);
-                          }}
-                          className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-purple-100 rounded-t-xl transition-colors"
-                          type="button"
-                        >
-                          Profile
-                        </button>
-                        <button
-                          onClick={async () => {
-                            await signOut();
-                            window.location.href = '/';
-                          }}
-                          className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-purple-100 rounded-b-xl transition-colors"
-                          type="button"
-                        >
-                          Sign Out
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </SignedIn>
+              {/* Center nav options */}
+              <div className="hidden md:flex items-center gap-8">
+                <button onClick={() => scrollToSection('home-section')} className="text-white/80 hover:text-white font-medium transition-colors">Home</button>
+                <button onClick={() => scrollToSection('features-section')} className="text-white/80 hover:text-white font-medium transition-colors">Features</button>
+                <button onClick={() => scrollToSection('about-section')} className="text-white/80 hover:text-white font-medium transition-colors">About</button>
+                <button onClick={() => scrollToSection('contact-section')} className="text-white/80 hover:text-white font-medium transition-colors">Contact</button>
+              </div>
+
+              {/* Actions and Hamburger */}
+              <div className="flex items-center gap-2">
+                {/* Actions (Sign In/Profile) */}
+                <div className="flex items-center md:space-x-4">
+                  <SignedOut>
+                    <SignInButton mode="modal">
+                      <button className="hidden md:block bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 hover:scale-105">
+                        Sign In
+                      </button>
+                    </SignInButton>
+                  </SignedOut>
+                  <SignedIn>
+                    <div className="relative hidden md:block" ref={userMenuRef}>
+                      <button
+                        className="flex items-center gap-2 bg-purple-600/30 rounded-full px-4 py-2 text-white font-semibold text-lg backdrop-blur-md border border-purple-400/40 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-400"
+                        onClick={() => setUserMenuOpen((open) => !open)}
+                        aria-haspopup="true"
+                        aria-expanded={userMenuOpen}
+                        type="button"
+                      >
+                        Hi! {user?.firstName || user?.username || 'User'}
+                        <FaUser className="w-5 h-5 text-purple-200" />
+                      </button>
+                      {userMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg py-2 z-50 border border-purple-200/40">
+                          <button
+                            onClick={() => {
+                              openUserProfile();
+                              setUserMenuOpen(false);
+                            }}
+                            className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-purple-100 rounded-t-xl transition-colors"
+                            type="button"
+                          >
+                            Profile
+                          </button>
+                          <button
+                            onClick={async () => {
+                              await signOut();
+                              window.location.href = '/';
+                            }}
+                            className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-purple-100 rounded-b-xl transition-colors"
+                            type="button"
+                          >
+                            Sign Out
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </SignedIn>
+                </div>
+                {/* Hamburger menu for mobile */}
                 <button
-                  className="flex items-center gap-2 bg-black/40 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-semibold shadow transition-all duration-300 border border-purple-500/30"
-                  onClick={() => navigate('/chat')}
+                  className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-400 text-white"
+                  onClick={() => setMobileMenuOpen((open) => !open)}
+                  aria-label="Open menu"
                 >
-                  <FaRobot className="h-5 w-5 text-purple-300" />
-                  <span className="hidden sm:inline">Chat with AI</span>
+                  {mobileMenuOpen ? <FaTimes className="h-6 w-6" /> : <FaBars className="h-6 w-6" />}
                 </button>
               </div>
             </div>
           </div>
         </nav>
+
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 bg-black/70 flex flex-col items-center justify-start pt-24 md:hidden">
+            <button
+              className="absolute top-6 right-6 text-white text-3xl p-2 rounded-full hover:bg-white/10 focus:outline-none"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <FaTimes />
+            </button>
+            <button onClick={() => { scrollToSection('home-section'); setMobileMenuOpen(false); }} className="text-white text-xl py-3 w-full text-center hover:bg-purple-700 transition">Home</button>
+            <button onClick={() => { scrollToSection('features-section'); setMobileMenuOpen(false); }} className="text-white text-xl py-3 w-full text-center hover:bg-purple-700 transition">Features</button>
+            <button onClick={() => { scrollToSection('about-section'); setMobileMenuOpen(false); }} className="text-white text-xl py-3 w-full text-center hover:bg-purple-700 transition">About</button>
+            <button onClick={() => { scrollToSection('contact-section'); setMobileMenuOpen(false); }} className="text-white text-xl py-3 w-full text-center hover:bg-purple-700 transition">Contact</button>
+            <div className="mt-8 w-full flex justify-center">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="bg-purple-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 hover:scale-105 text-lg">
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
+            </div>
+          </div>
+        )}
 
         <div className="flex-grow">
           {/* Hero Section */}
@@ -468,19 +516,19 @@ const LandingPage = () => {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
                 <button
-                  onClick={() => scrollToSection('search-section')}
-                  className="group bg-purple-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-purple-700 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25"
+                  onClick={() => navigate('/chat')}
+                  className="group bg-purple-600 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-purple-700 hover:scale-105 active:scale-95 shadow-lg hover:shadow-purple-500/25 flex items-center"
                 >
-                  Get Started
-                  <FaArrowRight className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
+                  <img src="/image/robot_630426.png" alt="Robot" className="inline-block mr-2 h-7 w-7" />
+                  Chat with AI
                 </button>
 
                 <button
-                  onClick={() => scrollToSection('features-section')}
-                  className="group border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm"
+                  onClick={() => scrollToSection('search-section')}
+                  className="group border-2 border-white/30 text-white font-semibold px-8 py-4 rounded-lg text-lg transition-all duration-300 hover:bg-white/10 hover:border-white/50 backdrop-blur-sm flex items-center"
                 >
-                  Learn More
-                  <FaArrowRight className="inline-block ml-2 transition-transform group-hover:translate-x-1" />
+                  <FaSearch className="inline-block mr-2" />
+                  Search
                 </button>
               </div>
 
@@ -538,25 +586,26 @@ const LandingPage = () => {
                       <FaSearch className="h-5 w-5 text-gray-400" />
                     </div>
                     {isImageUploaded ? (
-                      <div className="flex items-center w-full pl-14 pr-24 py-3">
+                      <div className="flex items-center w-full pl-14 pr-24 py-3 relative">
                         <div className="relative">
                           <img
                             src={imagePreview}
                             alt="upload preview"
                             className="w-10 h-10 rounded-full object-cover border-2 border-purple-400 shadow-md"
                           />
+                          <button
+                            type="button"
+                            onClick={clearImage}
+                            className="absolute -top-2 -right-2 p-1 bg-black/70 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400"
+                            aria-label="Remove image"
+                            style={{ zIndex: 2 }}
+                          >
+                            <FaTimes className="w-4 h-4" />
+                          </button>
                         </div>
                         <span className="ml-4 text-gray-300 flex-1">
                           Image selected for search
                         </span>
-                        <button
-                          type="button"
-                          onClick={clearImage}
-                          className="p-2 rounded-full text-gray-400 hover:text-red-400 hover:bg-red-500/20 transition-colors ml-2 focus:outline-none focus:ring-2 focus:ring-red-400"
-                          aria-label="Remove image"
-                        >
-                          <FaTimes className="w-5 h-5" />
-                        </button>
                       </div>
                     ) : (
                       <input
@@ -622,6 +671,15 @@ const LandingPage = () => {
                       >
                         {compareMode ? 'Cancel' : 'Compare'}
                       </button>
+                      {compareMode && (
+                        <button
+                          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-all duration-300 text-sm"
+                          onClick={handleOpenComparison}
+                          disabled={selectedProducts.length < 2}
+                        >
+                          Compare Selected ({selectedProducts.length})
+                        </button>
+                      )}
                       <Popover className="relative">
                         <Popover.Button className="neon-button inline-flex items-center gap-x-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-transform active:scale-95">
                           <FaFilter className="h-4 w-4 text-gray-300" />
@@ -658,9 +716,9 @@ const LandingPage = () => {
                     selectedProducts={selectedProducts}
                     setSelectedProducts={setSelectedProducts}
                   />
-                  {showComparison && selectedProducts.length === 2 && (
+                  {showComparison && compareMode && selectedProducts.length >= 2 && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-                      <div className="bg-white rounded-xl shadow-lg p-8 max-w-3xl w-full relative">
+                      <div className="bg-white rounded-xl shadow-lg p-8 max-w-3xl w-full relative max-h-[80vh] overflow-y-auto">
                         <button
                           className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl"
                           onClick={handleCloseComparison}
@@ -669,14 +727,15 @@ const LandingPage = () => {
                           &times;
                         </button>
                         <h2 className="text-2xl font-bold mb-6 text-gray-900 text-center">Product Comparison</h2>
-                        <div className="flex gap-8 justify-center">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-x-auto">
                           {selectedProducts.map((product, idx) => (
-                            <div key={product.id || idx} className="min-w-[220px] max-w-xs bg-gray-100 rounded-xl p-4 flex flex-col items-center border border-purple-500/20">
-                              <img src={product.thumbnail || 'https://picsum.photos/100/100?random=1'} alt={product.title} className="w-24 h-24 object-contain rounded mb-2 bg-white" />
-                              <div className="font-semibold text-gray-900 text-sm text-center line-clamp-2 mb-1">{product.title}</div>
-                              <div className="text-purple-700 font-bold text-lg mb-1">{product.price}</div>
-                              <div className="text-yellow-500 text-sm mb-1">Rating: {product.rating || 'N/A'}</div>
-                              <a href={product.amazonUrl || product.url || '#'} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-700 underline mt-1">View Product</a>
+                            <div key={product.id || idx} className="bg-gray-100 rounded-lg p-4 shadow flex flex-col items-center">
+                              <img src={product.thumbnail || product.image || 'https://picsum.photos/200'} alt={product.title} className="w-24 h-24 object-contain mb-2" />
+                              <div className="font-semibold text-gray-800 text-center mb-1">{product.title}</div>
+                              <div className="text-sm text-gray-500 mb-1">{product.brand || product.source}</div>
+                              <div className="text-purple-600 font-bold mb-1">₹{(product.price || '').toString().replace(/[^\d.]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</div>
+                              <div className="text-xs text-gray-400 text-center line-clamp-2">{product.description}</div>
+                              <a href={product.url || product.product_url || product.amazonUrl || '#'} target="_blank" rel="noopener noreferrer" className="mt-2 text-xs text-blue-500 underline">View Product</a>
                             </div>
                           ))}
                         </div>
@@ -769,6 +828,40 @@ const LandingPage = () => {
                   Start Searching Now
                   <FaArrowRight className="inline-block ml-2" />
                 </button>
+              </div>
+            </div>
+          </section>
+
+          {/* About Section */}
+          <section id="about-section" className="py-20 px-6">
+            <div className="container mx-auto max-w-4xl text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">About Us</h2>
+              <p className="text-lg text-gray-300 mb-6">
+                Searchify is an AI-powered product search platform designed to help you find the best products quickly and easily. Our mission is to make shopping smarter, faster, and more enjoyable by leveraging advanced AI, visual search, and seamless user experience.
+              </p>
+              <p className="text-gray-400">
+                Built by passionate developers and designers, Searchify combines the latest in AI technology with a beautiful, intuitive interface. We're always working to improve and add new features—thank you for being part of our journey!
+              </p>
+            </div>
+          </section>
+
+          {/* Contact Section */}
+          <section id="contact-section" className="py-20 px-6">
+            <div className="container mx-auto max-w-4xl text-center">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Contact Us</h2>
+              <p className="text-lg text-gray-300 mb-8">
+                Have questions, feedback, or need support? Fill out the form below or reach out to us directly!
+              </p>
+              <form className="max-w-xl mx-auto flex flex-col gap-4 text-left">
+                <input type="text" placeholder="Your Name" className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <input type="email" placeholder="Your Email" className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <textarea placeholder="Your Message" rows={4} className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg self-center">Send Message</button>
+              </form>
+              <div className="mt-8 flex flex-col items-center gap-2">
+                <span className="text-gray-400">Or contact us directly:</span>
+                <a href="mailto:support@searchify.com" className="text-purple-400 hover:underline text-lg">support@searchify.com</a>
+                <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline text-lg">@searchify on Twitter</a>
               </div>
             </div>
           </section>
