@@ -94,7 +94,20 @@ async function searchProductSearchAPI(query, country = 'us', language = 'en', pa
   }
 }
 
+// Search Amazon by keywords (for image search)
+async function searchByKeywords(keywords, category = null, limit = 10, country = 'US') {
+  const query = Array.isArray(keywords) ? keywords[0] : keywords;
+  return searchAmazon(query, country, 1, limit);
+}
+
+// Search Product Search API by keyword (for image search)
+async function searchNewApiProducts(keyword, page = 1, limit = 10, country = 'us') {
+  return searchProductSearchAPI(keyword, country, 'en', page, limit);
+}
+
 module.exports = {
   searchAmazon,
   searchProductSearchAPI,
+  searchByKeywords,
+  searchNewApiProducts,
 };

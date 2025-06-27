@@ -89,31 +89,31 @@ const searchByImage = async (req, res) => {
     }
 
     // Use the highest-confidence object as the keyword, or fallback
-    let keywords = ['headphones']
+    let keyword = 'headphones';
     if (detectedObjects.length > 0) {
-      const bestObject = detectedObjects.reduce((a, b) => (a.value > b.value ? a : b))
+      const bestObject = detectedObjects.reduce((a, b) => (a.value > b.value ? a : b));
       if (bestObject.value > 0.7) {
-        keywords = [bestObject.name]
+        keyword = bestObject.name;
       }
     }
 
-    const country = 'IN'
+    const country = 'IN';
 
-    // Only fetch Amazon products by keywords
-    const amazonProducts = await rapidApiService.searchByKeywords(keywords, null, 10, country)
+    // Only fetch Amazon products by the best keyword
+    const amazonProducts = await rapidApiService.searchByKeywords(keyword, null, 10, country)
       .catch(error => {
-        logger.error(`Error fetching Amazon products by keywords: ${error.message}`);
+        logger.error(`Error fetching Amazon products by keyword: ${error.message}`);
         return []; // Return empty on error
       });
-    logger.info(`[IMAGE SEARCH] amazonCount=${amazonProducts.length} | keywords=${keywords.join(', ')}`);
+    logger.info(`[IMAGE SEARCH] amazonCount=${amazonProducts.length} | keyword=${keyword}`);
 
-    // Fetch new API products by keywords (use the best keyword)
+    // Fetch new API products by the best keyword
     let newApiProducts = [];
-    if(keywords && keywords.length > 0) {
+    if(keyword) {
       try {
-        newApiProducts = await rapidApiService.searchNewApiProducts(keywords[0], 1, 10, country.toLowerCase());
+        newApiProducts = await rapidApiService.searchNewApiProducts(keyword, 1, 10, country.toLowerCase());
       } catch (error) {
-        logger.error(`Error fetching New API products by keywords: ${error.message}`);
+        logger.error(`Error fetching New API products by keyword: ${error.message}`);
         newApiProducts = []; // Return empty on error
       }
     }
@@ -133,7 +133,7 @@ const searchByImage = async (req, res) => {
       data: {
         amazon: amazonProducts,
         newApi: newApiProducts,
-        keywords,
+        keyword,
         visionError,
         originalImage: originalName,
         total: amazonProducts.length + newApiProducts.length

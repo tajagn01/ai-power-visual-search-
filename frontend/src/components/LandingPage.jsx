@@ -213,8 +213,10 @@ const LandingPage = () => {
       const data = await response.json();
       console.log('API response:', data); // Debug log
 
-      // Use the new products key
-      const products = data.data?.products || data.products || [];
+      // Combine products from both APIs
+      const amazonProducts = data.data?.amazon || [];
+      const productSearchProducts = data.data?.productSearch || [];
+      const products = [...amazonProducts, ...productSearchProducts];
       setProducts(products);
 
       if (products.length > 0) {

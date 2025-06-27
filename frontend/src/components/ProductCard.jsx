@@ -2,17 +2,41 @@ import React from 'react';
 import StarRating from './StarRating';
 import { FaExternalLinkAlt, FaShoppingCart } from 'react-icons/fa';
 
+// Utility to format price as INR
+function formatINR(price) {
+  const num = parseFloat((price || '').toString().replace(/[^\d.]/g, ''));
+  if (isNaN(num)) return '₹--';
+  return '₹' + num.toLocaleString('en-IN');
+}
+
+// Utility to extract platform from URL
+function getPlatform(url, brand) {
+  if (!url && brand) return brand;
+  if (!url) return 'Unknown';
+  const lower = url.toLowerCase();
+  if (lower.includes('amazon')) return 'Amazon';
+  if (lower.includes('flipkart')) return 'Flipkart';
+  if (lower.includes('myntra')) return 'Myntra';
+  if (lower.includes('meesho')) return 'Meesho';
+  if (lower.includes('ajio')) return 'Ajio';
+  if (lower.includes('reliancedigital')) return 'Reliance Digital';
+  if (lower.includes('croma')) return 'Croma';
+  return brand || 'Other';
+}
+
 const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProducts }) => {
   // Handle different field names from backend
-  const { 
-    title = 'Product Title Not Available', 
-    thumbnail = 'https://picsum.photos/300/300?random=1', 
-    price = 'Price not available', 
-    rating = null, 
-    source = product.brand || 'Store', // Use brand as fallback for source
-    product_url = product.amazonUrl || product.url || '#', // Use amazonUrl as fallback for product_url
-    description = product.description || '' // Use description as fallback for description
+  const {
+    title = 'Product Title Not Available',
+    thumbnail = 'https://picsum.photos/300/300?random=1',
+    price = 'Price not available',
+    rating = null,
+    brand = '',
+    product_url = product.amazonUrl || product.url || product.product_url || '#',
+    description = product.description || ''
   } = product;
+
+  const platform = getPlatform(product_url, brand);
 
   const handleCardClick = (e) => {
     // Prevent card click if a button or the link icon is clicked
@@ -39,6 +63,12 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
       onClick={handleCardClick}
       className="glass-card rounded-xl overflow-hidden shadow-lg hover:shadow-purple-500/20 transition-all duration-300 hover:-translate-y-1 transform-gpu cursor-pointer group flex flex-col h-full max-w-xs w-full mx-auto p-1 min-w-0"
     >
+      {/* Platform Badge */}
+      <div className="absolute top-2 right-2 z-10">
+        <span className="bg-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+          {platform}
+        </span>
+      </div>
       {/* Comparison Checkbox */}
       {compareMode && (
         <div className="absolute top-2 left-2 z-10">
@@ -59,7 +89,6 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
           alt={title}
           loading="lazy"
         />
-        
         {/* External Link Icon */}
         <a
           href={product_url}
@@ -70,10 +99,8 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
         >
           <FaExternalLinkAlt className="w-3 h-3" />
         </a>
-        
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"></div>
       </div>
-
       {/* Content Section */}
       <div className="p-2 flex flex-col flex-grow min-w-0">
         {/* Title */}
@@ -83,13 +110,11 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
         {description && (
           <p className="text-[11px] text-gray-400 mt-1 line-clamp-2">{description}</p>
         )}
-
         {/* Spacer to push content to bottom */}
         <div className="flex-grow" />
-
         {/* Price and Rating Row */}
         <div className="mt-2 flex flex-col items-start">
-          <p className="text-gray-200 text-base font-semibold">{price}</p>
+          <p className="text-gray-200 text-base font-semibold">{formatINR(price)}</p>
           {rating && (
             <div className="flex items-center mt-1">
               <StarRating rating={rating} className="w-3 h-3 md:w-4 md:h-4" />
@@ -97,19 +122,13 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
             </div>
           )}
         </div>
-
         {/* Buy Button */}
         <div className="mt-2">
           <button
             onClick={() => window.open(product_url, '_blank', 'noopener,noreferrer')}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-2 rounded-lg text-xs"
           >
-            {source && source.toLowerCase().includes('flip') ? 'Buy on Flipkart'
-              : source && source.toLowerCase().includes('amazon') ? 'Buy on Amazon'
-              : source && source.toLowerCase().includes('myntra') ? 'Buy on Myntra'
-              : source && source.toLowerCase().includes('meesho') ? 'Buy on Meesho'
-              : source ? `Buy on ${source}`
-              : 'Buy Now'}
+            {platform && platform !== 'Other' ? `Buy on ${platform}` : 'Buy Now'}
           </button>
         </div>
       </div>
