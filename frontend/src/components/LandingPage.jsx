@@ -837,33 +837,37 @@ const LandingPage = () => {
           {/* About Section */}
           <section id="about-section" className="py-20 px-6">
             <div className="container mx-auto max-w-4xl text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">About Us</h2>
-              <p className="text-lg text-gray-300 mb-6">
-                Searchify is an AI-powered product search platform designed to help you find the best products quickly and easily. Our mission is to make shopping smarter, faster, and more enjoyable by leveraging advanced AI, visual search, and seamless user experience.
-              </p>
-              <p className="text-gray-400">
-                Built by passionate developers and designers, Searchify combines the latest in AI technology with a beautiful, intuitive interface. We're always working to improve and add new features—thank you for being part of our journey!
-              </p>
+              <div className="bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 shadow-xl p-8 md:p-12 transition-all duration-300 hover:scale-105 hover:bg-purple-500/10 hover:border-purple-500/30 hover:shadow-purple-500/40">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">About Us</h2>
+                <p className="text-lg text-gray-300 mb-6">
+                  Searchify is an AI-powered product search platform designed to help you find the best products quickly and easily. Our mission is to make shopping smarter, faster, and more enjoyable by leveraging advanced AI, visual search, and seamless user experience.
+                </p>
+                <p className="text-gray-400">
+                  Built by passionate developers and designers, Searchify combines the latest in AI technology with a beautiful, intuitive interface. We're always working to improve and add new features—thank you for being part of our journey!
+                </p>
+              </div>
             </div>
           </section>
 
           {/* Contact Section */}
           <section id="contact-section" className="py-20 px-6">
             <div className="container mx-auto max-w-4xl text-center">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Contact Us</h2>
-              <p className="text-lg text-gray-300 mb-8">
-                Have questions, feedback, or need support? Fill out the form below or reach out to us directly!
-              </p>
-              <form className="max-w-xl mx-auto flex flex-col gap-4 text-left">
-                <input type="text" placeholder="Your Name" className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
-                <input type="email" placeholder="Your Email" className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
-                <textarea placeholder="Your Message" rows={4} className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
-                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg self-center">Send Message</button>
-              </form>
-              <div className="mt-8 flex flex-col items-center gap-2">
-                <span className="text-gray-400">Or contact us directly:</span>
-                <a href="mailto:support@searchify.com" className="text-purple-400 hover:underline text-lg">support@searchify.com</a>
-                <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline text-lg">@searchify on Twitter</a>
+              <div className="bg-black/30 backdrop-blur-sm rounded-2xl border border-white/10 shadow-xl p-8 md:p-12 transition-all duration-300 hover:scale-105 hover:bg-purple-500/10 hover:border-purple-500/30 hover:shadow-purple-500/40">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Contact Us</h2>
+                <p className="text-lg text-gray-300 mb-8">
+                  Have questions, feedback, or need support? Fill out the form below or reach out to us directly!
+                </p>
+                <form className="max-w-xl mx-auto flex flex-col gap-4 text-left">
+                  <input type="text" placeholder="Your Name" className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                  <input type="email" placeholder="Your Email" className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                  <textarea placeholder="Your Message" rows={4} className="w-full px-4 py-3 rounded-lg bg-black/40 border border-purple-500/30 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400" />
+                  <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg self-center">Send Message</button>
+                </form>
+                <div className="mt-8 flex flex-col items-center gap-2">
+                  <span className="text-gray-400">Or contact us directly:</span>
+                  <a href="mailto:support@searchify.com" className="text-purple-400 hover:underline text-lg">support@searchify.com</a>
+                  <a href="https://twitter.com/" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:underline text-lg">@searchify on Twitter</a>
+                </div>
               </div>
             </div>
           </section>
