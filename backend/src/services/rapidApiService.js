@@ -215,26 +215,29 @@ function transformNewApiProducts(apiProducts) {
 // Search products using the new API (search-light-v2, by query)
 async function searchNewApiProducts(query, page = 1, limit = 10, country = 'us', language = 'en') {
   try {
-    const response = await newApiClient.get('/search-light-v2', {
+    const options = {
+      method: 'GET',
+      url: 'https://real-time-product-search.p.rapidapi.com/search-light-v2',
       params: {
         q: query,
         country,
         language,
-        page,
-        limit,
+        page: page.toString(),
+        limit: limit.toString(),
         sort_by: 'BEST_MATCH',
         product_condition: 'ANY',
         return_filters: 'false'
+      },
+      headers: {
+        'x-rapidapi-key': 'efd9eaafb5msh52a10f7af6ec05bp1adab2jsna9ba027f2b9d',
+        'x-rapidapi-host': 'real-time-product-search.p.rapidapi.com'
       }
-    });
-    logger.info('newapi_raw_response: ' + JSON.stringify(response.data));
-    // Fix: The products can be nested under response.data or response.data.data
+    };
+    const response = await axios.request(options);
+    // Map and transform as before
     const productContainer = response.data.data || response.data;
     const rawProducts = productContainer?.products || productContainer?.results || productContainer?.items || [];
-    logger.info(`newapi_raw_products_count: ${rawProducts.length}`);
-    const transformedProducts = transformNewApiProducts(rawProducts);
-    logger.info(`newapi_transformed_products_count: ${transformedProducts.length}`);
-    return transformedProducts;
+    return transformNewApiProducts(rawProducts);
   } catch (error) {
     logger.error('newapi_search_error: ' + JSON.stringify({ query, error: error.message, status: error.response?.status, data: error.response?.data }));
     return [];

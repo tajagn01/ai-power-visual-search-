@@ -225,16 +225,13 @@ const LandingPage = () => {
       }
 
       const data = await response.json();
+      console.log('API response:', data); // Debug log
 
-      // Handle both nested and flat response structures
-      const amazonProducts = data.data?.amazon || data.amazon || [3];
-      const newApiProducts = data.data?.newApi || data.newApi || [10];
+      // Use the new products key
+      const products = data.data?.products || data.products || [];
+      setProducts(products);
 
-      const combinedProducts = [...amazonProducts, ...newApiProducts];
-
-      setProducts(combinedProducts);
-
-      if (combinedProducts.length > 0) {
+      if (products.length > 0) {
         setTimeout(() => scrollToSection('results-section'), 100);
       }
 
