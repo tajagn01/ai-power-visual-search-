@@ -7,6 +7,9 @@ const upload = require('../middleware/upload')
 // Text search endpoint
 router.get('/', searchController.searchByText)
 
+// Trending products endpoint
+router.get('/trending', searchController.getTrendingProducts)
+
 // Image search endpoint
 router.post('/image', upload.single('image'), searchController.searchByImage)
 

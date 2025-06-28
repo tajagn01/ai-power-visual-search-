@@ -1042,3 +1042,22 @@
 {"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-28 01:05:54"}
 {"level":"info","message":"📁 Upload directory: D:\\c\\notes\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-28 01:05:54"}
 {"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-28 01:05:54"}
+{"level":"info","message":"::1 - - [27/Jun/2025:20:43:48 +0000] \"GET /api/message HTTP/1.1\" 404 21 \"http://localhost:5173/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36\"","service":"ai-ecommerce-backend","timestamp":"2025-06-28 02:13:48"}
+{"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:43"}
+{"level":"info","message":"📁 Upload directory: D:\\c\\notes\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:43"}
+{"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:43"}
+{"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:44"}
+{"level":"info","message":"📁 Upload directory: D:\\c\\notes\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:44"}
+{"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:44"}
+{"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:59"}
+{"level":"info","message":"📁 Upload directory: D:\\c\\notes\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:59"}
+{"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:13:59"}
+{"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:14:23"}
+{"level":"info","message":"📁 Upload directory: D:\\c\\notes\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:14:23"}
+{"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:14:23"}
+{"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:21:00"}
+{"level":"info","message":"📁 Upload directory: D:\\c\\notes\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:21:00"}
+{"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:21:00"}
+{"level":"info","message":"🚀 Server listening on port 5000","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:21:07"}
+{"level":"info","message":"📁 Upload directory: D:\\c\\notes\\backend\\uploads","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:21:07"}
+{"level":"info","message":"🌍 Environment: undefined","service":"ai-ecommerce-backend","timestamp":"2025-06-28 09:21:07"}

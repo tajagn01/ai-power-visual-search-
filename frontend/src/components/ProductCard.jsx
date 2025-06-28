@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import StarRating from './StarRating';
 import { FaExternalLinkAlt, FaShoppingCart } from 'react-icons/fa';
 
@@ -49,6 +49,26 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
 
   const platform = getPlatform(product_url, brand);
 
+  // Image error handling
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  const handleImageError = () => {
+    setImageError(true);
+    setImageLoading(false);
+  };
+
+  const handleImageLoad = () => {
+    setImageLoading(false);
+  };
+
+  const getImageSrc = () => {
+    if (imageError) {
+      return `https://picsum.photos/300/300?random=${Math.floor(Math.random() * 1000)}`;
+    }
+    return thumbnail;
+  };
+
   const handleCardClick = (e) => {
     // Prevent card click if a button or the link icon is clicked
     if (e.target.closest('button, a')) {
@@ -94,11 +114,18 @@ const ProductCard = ({ product, compareMode, selectedProducts, setSelectedProduc
       )}
       {/* Image Section */}
       <div className="relative w-full aspect-[3/4] bg-gray-900 overflow-hidden">
+        {imageLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+          </div>
+        )}
         <img
-          className="w-full h-full object-contain bg-white"
-          src={thumbnail}
+          className={`w-full h-full object-contain bg-white ${imageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+          src={getImageSrc()}
           alt={title}
           loading="lazy"
+          onError={handleImageError}
+          onLoad={handleImageLoad}
         />
         {/* External Link Icon */}
         <a
