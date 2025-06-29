@@ -30,14 +30,6 @@ const LandingPage = () => {
     stores: [],
   });
 
-  // Trending products state
-  const [trendingProducts, setTrendingProducts] = useState({
-    amazon: null,
-    flipkart: null,
-    myntra: null
-  });
-  const [trendingLoading, setTrendingLoading] = useState(true);
-
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const { openUserProfile, signOut } = useClerk();
@@ -73,28 +65,6 @@ const LandingPage = () => {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Fetch trending products
-  const fetchTrendingProducts = async () => {
-    try {
-      setTrendingLoading(true);
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://ai-power-visual-search.onrender.com'}/api/search/trending`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (data.success && data.data) {
-        setTrendingProducts(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching trending products:', error);
-      // Keep the default state if API fails
-    } finally {
-      setTrendingLoading(false);
-    }
-  };
-
   // Vanta.js initialization
   useEffect(() => {
     vantaEffectRef.current = NET({
@@ -127,11 +97,6 @@ const LandingPage = () => {
         vantaEffectRef.current = null;
       }
     };
-  }, []);
-
-  // Fetch trending products on component mount
-  useEffect(() => {
-    fetchTrendingProducts();
   }, []);
 
   // Close menu on outside click
@@ -709,93 +674,6 @@ const LandingPage = () => {
                   </div>
                 </form>
 
-              </div>
-            </div>
-          </section>
-
-          {/* Trending Products Section */}
-          <section id="trending-products" className="py-10 px-6">
-            <div className="container mx-auto max-w-4xl">
-              <div className="bg-black/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 flex flex-col items-center shadow-xl border border-white/10">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">Trending Products</h2>
-                {trendingLoading ? (
-                  <div className="flex items-center justify-center w-full">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                    <span className="ml-3 text-white">Loading trending products...</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap justify-center gap-8 w-full">
-                    {/* Amazon */}
-                    <div className="flex flex-col items-center">
-                      <div className="w-32 h-32 md:w-40 md:h-40 bg-white rounded-xl shadow-lg flex items-center justify-center overflow-hidden border-4 border-yellow-400">
-                        {trendingProducts.amazon ? (
-                          <img 
-                            src={trendingProducts.amazon.thumbnail} 
-                            alt={trendingProducts.amazon.title} 
-                            className="object-contain w-full h-full"
-                            onError={(e) => {
-                              e.target.src = 'https://m.media-amazon.com/images/I/714Rq4k05UL._SL1000_.jpg';
-                            }}
-                          />
-                        ) : (
-                          <img src="https://m.media-amazon.com/images/I/714Rq4k05UL._SL1000_.jpg" alt="Amazon Trending Product" className="object-contain w-full h-full" />
-                        )}
-                      </div>
-                      <span className="mt-3 text-yellow-300 font-semibold text-lg">Amazon</span>
-                      {trendingProducts.amazon && (
-                        <p className="text-xs text-gray-300 text-center mt-1 max-w-32">
-                          {trendingProducts.amazon.title.substring(0, 30)}...
-                        </p>
-                      )}
-                    </div>
-                    {/* Flipkart */}
-                    <div className="flex flex-col items-center">
-                      <div className="w-32 h-32 md:w-40 md:h-40 bg-white rounded-xl shadow-lg flex items-center justify-center overflow-hidden border-4 border-blue-400">
-                        {trendingProducts.flipkart ? (
-                          <img 
-                            src={trendingProducts.flipkart.thumbnail} 
-                            alt={trendingProducts.flipkart.title} 
-                            className="object-contain w-full h-full"
-                            onError={(e) => {
-                              e.target.src = 'https://rukminim2.flixcart.com/image/832/832/xif0q/shoe/0/6/2/-original-imagzrf2gqgqgk7z.jpeg';
-                            }}
-                          />
-                        ) : (
-                          <img src="https://rukminim2.flixcart.com/image/832/832/xif0q/shoe/0/6/2/-original-imagzrf2gqgqgk7z.jpeg" alt="Flipkart Trending Product" className="object-contain w-full h-full" />
-                        )}
-                      </div>
-                      <span className="mt-3 text-blue-300 font-semibold text-lg">Flipkart</span>
-                      {trendingProducts.flipkart && (
-                        <p className="text-xs text-gray-300 text-center mt-1 max-w-32">
-                          {trendingProducts.flipkart.title.substring(0, 30)}...
-                        </p>
-                      )}
-                    </div>
-                    {/* Myntra */}
-                    <div className="flex flex-col items-center">
-                      <div className="w-32 h-32 md:w-40 md:h-40 bg-white rounded-xl shadow-lg flex items-center justify-center overflow-hidden border-4 border-pink-400">
-                        {trendingProducts.myntra ? (
-                          <img 
-                            src={trendingProducts.myntra.thumbnail} 
-                            alt={trendingProducts.myntra.title} 
-                            className="object-contain w-full h-full"
-                            onError={(e) => {
-                              e.target.src = 'https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/24644538/2023/8/18/7e2e2c2e-2e2e-4e2e-8e2e-2e2e2e2e2e2e1692342342342-1.jpg';
-                            }}
-                          />
-                        ) : (
-                          <img src="https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/24644538/2023/8/18/7e2e2c2e-2e2e-4e2e-8e2e-2e2e2e2e2e2e1692342342342-1.jpg" alt="Myntra Trending Product" className="object-contain w-full h-full" />
-                        )}
-                      </div>
-                      <span className="mt-3 text-pink-300 font-semibold text-lg">Myntra</span>
-                      {trendingProducts.myntra && (
-                        <p className="text-xs text-gray-300 text-center mt-1 max-w-32">
-                          {trendingProducts.myntra.title.substring(0, 30)}...
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </section>

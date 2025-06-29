@@ -56,108 +56,6 @@ const searchByText = async (req, res) => {
   }
 }
 
-// Get trending products for the trending products section
-const getTrendingProducts = async (req, res) => {
-  logger.info('trending_products: ' + JSON.stringify({ ip: req.ip }))
-
-  try {
-    const trendingQueries = ['laptop', 'smartphone', 'headphones', 'shoes', 'watch', 'camera'];
-    const country = 'US'
-    let allProducts = []
-
-    // Fetch products for trending queries
-    for (const query of trendingQueries) {
-      try {
-        // Get Amazon products
-        const amazonProducts = await rapidApiService.searchAmazon(query, country, 1, 2)
-        if (amazonProducts.length > 0) {
-          allProducts.push({
-            ...amazonProducts[0],
-            source: 'Amazon',
-            trendingQuery: query
-          })
-        }
-
-        // Get Product Search API products
-        const productSearchProducts = await rapidApiService.searchProductSearchAPI(query, country.toLowerCase(), 'en', 1, 2)
-        if (productSearchProducts.length > 0) {
-          allProducts.push({
-            ...productSearchProducts[0],
-            source: 'ProductSearch',
-            trendingQuery: query
-          })
-        }
-      } catch (error) {
-        logger.error(`Error fetching trending products for query "${query}": ${error.message}`)
-      }
-    }
-
-    // Select one product from each source (Amazon, Flipkart, Myntra)
-    const trendingProducts = {
-      amazon: allProducts.find(p => p.source === 'Amazon') || getFallbackTrendingProduct('Amazon'),
-      flipkart: allProducts.find(p => p.source === 'ProductSearch' && p.brand?.toLowerCase().includes('flipkart')) || getFallbackTrendingProduct('Flipkart'),
-      myntra: allProducts.find(p => p.source === 'ProductSearch' && p.brand?.toLowerCase().includes('myntra')) || getFallbackTrendingProduct('Myntra')
-    }
-
-    logger.info(`[TRENDING] Amazon=${!!trendingProducts.amazon} | Flipkart=${!!trendingProducts.flipkart} | Myntra=${!!trendingProducts.myntra}`)
-
-    res.json({
-      success: true,
-      data: trendingProducts
-    })
-  } catch (error) {
-    logger.error(`[ERROR] trending_products: ${error.message}`)
-    res.status(500).json({ success: false, error: error.message })
-  }
-}
-
-// Fallback trending product when APIs fail
-const getFallbackTrendingProduct = (source) => {
-  const fallbackProducts = {
-    amazon: {
-      id: `trending-amazon-${Date.now()}`,
-      title: 'Amazon Echo Dot (4th Gen) - Smart Speaker',
-      price: '2999.00',
-      thumbnail: 'https://m.media-amazon.com/images/I/714Rq4k05UL._SL1000_.jpg',
-      url: 'https://www.amazon.in',
-      rating: '4.5',
-      reviews: '1250',
-      description: 'Smart speaker with Alexa | Charcoal',
-      brand: 'Amazon',
-      source: 'Amazon',
-      trendingQuery: 'smart speaker'
-    },
-    flipkart: {
-      id: `trending-flipkart-${Date.now()}`,
-      title: 'Nike Air Max Running Shoes',
-      price: '2499.00',
-      thumbnail: 'https://rukminim2.flixcart.com/image/832/832/xif0q/shoe/0/6/2/-original-imagzrf2gqgqgk7z.jpeg',
-      url: 'https://www.flipkart.com',
-      rating: '4.3',
-      reviews: '890',
-      description: 'Comfortable running shoes with air cushioning',
-      brand: 'Nike',
-      source: 'Flipkart',
-      trendingQuery: 'running shoes'
-    },
-    myntra: {
-      id: `trending-myntra-${Date.now()}`,
-      title: 'Levi\'s Men\'s Slim Fit Jeans',
-      price: '1899.00',
-      thumbnail: 'https://assets.myntassets.com/h_720,q_90,w_540/v1/assets/images/24644538/2023/8/18/7e2e2c2e-2e2e-4e2e-8e2e-2e2e2e2e2e2e1692342342342-1.jpg',
-      url: 'https://www.myntra.com',
-      rating: '4.2',
-      reviews: '567',
-      description: 'Classic blue denim jeans with perfect fit',
-      brand: 'Levi\'s',
-      source: 'Myntra',
-      trendingQuery: 'jeans'
-    }
-  };
-
-  return fallbackProducts[source.toLowerCase()] || fallbackProducts.amazon;
-}
-
 // Image search controller
 const searchByImage = async (req, res) => {
   logger.info(`[IMAGE SEARCH] start | ip=${req.ip} | file=${req.file ? req.file.originalname : 'no file'}`);
@@ -261,6 +159,5 @@ const searchByImage = async (req, res) => {
 
 module.exports = {
   searchByText,
-  searchByImage,
-  getTrendingProducts
+  searchByImage
 } 
