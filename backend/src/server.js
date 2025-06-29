@@ -22,11 +22,14 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Middleware
-app.use(helmet())
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}))
 app.use(cors({
-  origin: '*',
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://ai-power-visual-search.onrender.com', '*'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true
 }))
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }))
 app.use(express.json({ limit: '10mb' }))
@@ -46,6 +49,9 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/search', searchRoutes)
+
+// Handle preflight requests
+app.options('*', cors())
 
 // Root URL handler
 app.get('/', (req, res) => {
